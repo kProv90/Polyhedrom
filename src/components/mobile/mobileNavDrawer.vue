@@ -38,10 +38,10 @@
   </q-img>
 </template>
 <script setup lang="ts">
-import type { NavMenuItem } from "src/components/shared/models";
+import type { NavMenuItem } from "src/components/shared/data/models";
 defineProps<{
   items: Array<NavMenuItem>;
   user: object | null;
-  login: () => Promise<void>;
+  login: () => void;
 }>();
 </script>
