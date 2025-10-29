@@ -1,7 +1,7 @@
 {
   "buildCommand": "yarn run build",
   "outputDirectory": "dist/spa",
-  "framework": "quasar",
+  "framework": "vue",
   "rewrites": [
     {
       "source": "/(.*)",
