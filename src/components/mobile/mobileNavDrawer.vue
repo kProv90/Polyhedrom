@@ -38,7 +38,7 @@
   </q-img>
 </template>
 <script setup lang="ts">
-import type { NavMenuItem } from "src/components/shared/data/models";
+import type { NavMenuItem } from "src/components/shared/drawer/models";
 defineProps<{
   items: Array<NavMenuItem>;
   user: object | null;

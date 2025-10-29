@@ -5,7 +5,7 @@
     </q-avatar>
   </q-card-section>
   <q-card-section class="flex flex-center q-pa-sm">
-    <div class="text-h6">Polyhedrom</div>
+    <div class="text-h6">Register</div>
   </q-card-section>
   <q-card-section class="text-caption text-center q-pa-none">
     Please fill out the form below <br />
@@ -13,9 +13,19 @@
   </q-card-section>
   <q-card-section>
     <q-form class="q-gutter-md">
-      <q-input v-model="data.handle" label="Handle" type="text" dense outlined
-        ><template v-slot:prepend> <q-icon name="mdi-at" /> </template
-      ></q-input>
+      <q-input
+        v-model="data.handle"
+        label="Handle"
+        type="text"
+        dense
+        outlined
+        :hide-bottom-space="!errors.handle"
+        :error="!!errors.handle"
+        :error-message="errors.handle"
+        :rules="handleRules"
+      >
+        <template v-slot:prepend> <q-icon name="mdi-at" /> </template>
+      </q-input>
       <q-input
         v-model="data.email"
         label="Email"
@@ -23,6 +33,10 @@
         autocomplete="email"
         dense
         outlined
+        :hide-bottom-space="!errors.email"
+        :error="!!errors.email"
+        :error-message="errors.email"
+        :rules="emailRules"
       />
       <q-input
         v-model="data.password"
@@ -31,14 +45,24 @@
         autocomplete="new-password"
         dense
         outlined
+        :hide-bottom-space="!errors.password"
+        :error="!!errors.password"
+        :error-message="errors.password"
+        :rules="passwordRules"
       />
       <q-input
-        v-model="confPass"
+        v-model="data.confPass"
         label="Confirm Password"
         type="password"
         autocomplete="repeat-password"
         dense
         outlined
+        :hide-bottom-space="!errors.confPass"
+        :error="!!errors.confPass"
+        :error-message="errors.confPass"
+        :rules="[
+          (val: string) => val === data.password || 'Passwords do not match',
+        ]"
       />
     </q-form>
   </q-card-section>
@@ -47,6 +71,7 @@
       label="Continue"
       color="primary"
       style="width: 75%"
+      :loading="isRegistering"
       @click="register"
     />
   </span>
@@ -80,22 +105,85 @@
 }
 </style>
 <script setup lang="ts">
-import { ref } from "vue";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { ref, computed } from "vue";
+import { useQuasar } from "quasar";
 import { useSessionStore, AuthState } from "src/stores/sessionStore";
-const session = useSessionStore();
+import {
+  handleRules,
+  passwordRules,
+  emailRules,
+} from "src/utils/system/dataRules";
+import {
+  registerUser,
+  type RegisterError,
+} from "src/utils/firebase/auth/register";
+import { sendEmailVerification } from "firebase/auth";
+import { getUserHandle } from "src/utils/firebase/user/handles";
 
-const auth = getAuth();
+const session = useSessionStore();
+const $q = useQuasar();
 
 const data = ref({
   handle: "",
   email: "",
   password: "",
+  confPass: "",
 });
 
-const confPass = ref("");
+const errors = ref({
+  handle: "",
+  email: "",
+  password: "",
+  confPass: "",
+});
 
-function register() {
-  session.auth = AuthState.Verify;
+const isRegistering = ref(false);
+
+async function register() {
+  try {
+    // Clear any previous errors
+    Object.keys(errors.value).forEach((key) => {
+      errors.value[key as keyof typeof errors.value] = "";
+    });
+
+    isRegistering.value = true;
+
+    // Register the user with our new function
+    const result = await registerUser(
+      data.value.email,
+      data.value.password,
+      data.value.handle,
+    );
+
+    if (result.error) {
+      switch (result.error.field) {
+        case "email":
+          errors.value.email = result.error.message;
+          break;
+        case "handle":
+          errors.value.handle = result.error.message;
+          break;
+        case "general":
+          $q.notify({
+            type: "negative",
+            message: result.error.message,
+          });
+          break;
+      }
+      return;
+    }
+
+    if (result.data) {
+      // Send verification email
+      await sendEmailVerification(result.data.user);
+
+      // Get the handle from Firestore and update session
+      session.user = result.data.user;
+      session.handle = await getUserHandle(result.data.user.uid);
+      session.auth = AuthState.Verify;
+    }
+  } finally {
+    isRegistering.value = false;
+  }
 }
 </script>

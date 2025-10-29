@@ -33,7 +33,7 @@
   </q-list>
 </template>
 <script setup lang="ts">
-import type { NavMenuItem } from "src/components/shared/data/models";
+import type { NavMenuItem } from "src/components/shared/drawer/models";
 defineProps<{
   miniState: boolean;
   items: Array<NavMenuItem>;

@@ -333,7 +333,7 @@ const openLink = (url: string) => {
 
 // Hero Section
 .hero-section {
-  padding: 120px 0 80px;
+  padding: 100px 0 40px;
 }
 
 .hero-title {

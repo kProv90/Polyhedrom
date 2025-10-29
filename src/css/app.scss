@@ -1,3 +1,81 @@
+// app.scss - Font Configuration
+
+// Import fonts from Google Fonts
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap");
+// Font family variables
+$font-heading: "Noto Serif", serif;
+$font-body: "Noto Sans", sans-serif;
+$font-technical: "Noto Sans Mono", monospace;
+
+// Apply fonts globally
+body {
+  font-family: $font-body;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Headings
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.text-h1,
+.text-h2,
+.text-h3,
+.text-h4,
+.text-h5,
+.text-h6 {
+  font-family: $font-body;
+  font-weight: 600;
+}
+
+// Quasar specific heading overrides
+.q-toolbar-title,
+.q-card-section .text-h6 {
+  font-family: $font-heading;
+}
+
+// Technical/Code elements
+code,
+pre,
+kbd,
+samp,
+.code,
+.technical {
+  font-family: $font-technical;
+  font-weight: 400;
+}
+
+// Monospace inputs (for campaign codes, IDs, etc.)
+.monospace-input input {
+  font-family: $font-technical;
+}
+
+// Optional: Specific weight classes
+.font-light {
+  font-weight: 300;
+}
+
+.font-regular {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+// Background gradient (your existing poly-page style)
 .poly-page {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   min-height: 100vh;

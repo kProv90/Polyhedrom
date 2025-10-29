@@ -14,6 +14,11 @@ export const useSessionStore = defineStore("session", {
   state: () => ({
     user: null as User | null,
     auth: AuthState.None,
+    handle: null as string | null,
   }),
-  actions: {},
+  actions: {
+    async updateHandle(newHandle: string) {
+      this.handle = newHandle;
+    },
+  },
 });

@@ -18,7 +18,7 @@ export default defineConfig((/* ctx */) => {
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
-      // 'ionicons-v4',
+      // "ionicons-v4",
       "mdi-v7",
       // 'fontawesome-v6',
       // 'eva-icons',
@@ -26,7 +26,7 @@ export default defineConfig((/* ctx */) => {
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
-      "roboto-font", // optional, you are not bound to it
+      // "roboto-font", // optional, you are not bound to it
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
@@ -42,7 +42,12 @@ export default defineConfig((/* ctx */) => {
         // extendTsConfig (tsConfig) {}
       },
 
-      vueRouterMode: "hash", // available values: 'hash', 'history'
+      env: {
+        OPENAI:
+          "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",
+      },
+
+      vueRouterMode: "history", // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -76,7 +81,7 @@ export default defineConfig((/* ctx */) => {
     framework: {
       config: {},
 
-      // iconSet: 'material-icons', // Quasar icon set
+      iconSet: "svg-mdi-v7", // Quasar icon set
       // lang: 'en-US', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
@@ -87,7 +92,7 @@ export default defineConfig((/* ctx */) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ["Notify"],
     },
 
     // animations: 'all', // --- includes all animations

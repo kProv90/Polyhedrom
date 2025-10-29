@@ -31,11 +31,19 @@
         outlined
         clearable
       />
-      <a href="#" class="text-caption">Forgot password?</a>
+      <a href="#" class="text-caption" @click="session.auth = AuthState.Reset"
+        >Forgot password?</a
+      >
     </q-form>
   </q-card-section>
   <span class="flex flex-center q-mb-lg q-gutter-md">
-    <q-btn label="Continue" color="primary" style="width: 75%" />
+    <q-btn
+      label="Continue"
+      color="primary"
+      type="submit"
+      @click="login"
+      style="width: 75%"
+    />
   </span>
   <span class="flex flex-center q-mb-md q-gutter-md">
     Don't have an account?
@@ -78,4 +86,23 @@ const data = ref({
   email: "",
   password: "",
 });
+
+async function login() {
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      data.value.email,
+      data.value.password
+    ).then((userCredential) => {
+      if (userCredential) {
+        session.user = userCredential.user;
+        session.auth = AuthState.None;
+      }
+    });
+    // Handle post-login actions here
+  } catch (error) {
+    console.error("Login error:", error);
+    // Handle login errors here
+  }
+}
 </script>
