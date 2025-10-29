@@ -13,6 +13,7 @@
     "postinstall": "quasar prepare"
   },
   "dependencies": {
+    "@clerk/vue": "^1.14.9",
     "@quasar/extras": "^1.16.4",
     "axios": "^1.2.1",
     "firebase": "^12.2.1",

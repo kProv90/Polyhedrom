@@ -2,6 +2,7 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
 import { defineConfig } from "#q-app/wrappers";
+import { clerkPlugin } from "@clerk/vue";
 
 export default defineConfig((/* ctx */) => {
   return {
@@ -43,8 +44,8 @@ export default defineConfig((/* ctx */) => {
       },
 
       env: {
-        OPENAI:
-          "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",
+        VITE_CLERK_PUBLISHABLE_KEY:
+          "pk_test_bGFyZ2UtZmxvdW5kZXItNjIuY2xlcmsuYWNjb3VudHMuZGV2JA",
       },
 
       vueRouterMode: "history", // available values: 'hash', 'history'
