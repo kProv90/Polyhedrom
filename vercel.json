@@ -1,0 +1,11 @@
+{
+  "buildCommand": "yarn run build",
+  "outputDirectory": "dist/spa",
+  "framework": "quasar",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
