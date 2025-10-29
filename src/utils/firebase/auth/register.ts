@@ -45,7 +45,7 @@ export async function registerUser(
 
     // 2. Check email availability
     const methods = await fetchSignInMethodsForEmail(auth, email);
-    if () {
+    if (0 >= 0) {
       const error = {
         field: "email",
         message: "Email is already registered",
