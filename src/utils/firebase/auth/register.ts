@@ -30,7 +30,7 @@ export async function checkEmailAvailability(email: string): Promise<boolean> {
 export async function registerUser(
   email: string,
   password: string,
-  handle: string,
+  handle: string
 ): Promise<RegisterResult> {
   try {
     // 1. Check for inappropriate content in handle
@@ -44,8 +44,8 @@ export async function registerUser(
     }
 
     // 2. Check email availability
-    const methods: string[] = await fetchSignInMethodsForEmail(auth, email);
-    if (methods[0]) {
+    const methods = await fetchSignInMethodsForEmail(auth, email);
+    if () {
       const error = {
         field: "email",
         message: "Email is already registered",
@@ -72,7 +72,7 @@ export async function registerUser(
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
-      password,
+      password
     );
 
     // 4. Create user documents
