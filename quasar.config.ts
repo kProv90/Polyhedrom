@@ -2,7 +2,6 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
 import { defineConfig } from "#q-app/wrappers";
-import { clerkPlugin } from "@clerk/vue";
 
 export default defineConfig((/* ctx */) => {
   return {
