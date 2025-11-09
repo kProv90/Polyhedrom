@@ -1,189 +1,205 @@
 <template>
-  <q-card-section class="flex flex-center q-pa-none">
-    <q-avatar size="128px" class="q-ma-none" square style="height: 80px">
-      <img src="/src/assets/logo.svg" />
-    </q-avatar>
-  </q-card-section>
-  <q-card-section class="flex flex-center q-pa-sm">
-    <div class="text-h6">Register</div>
-  </q-card-section>
-  <q-card-section class="text-caption text-center q-pa-none">
-    Please fill out the form below <br />
+  <v-card-text class="text-caption text-center pa-0 mb-3">
+    Please fill out the form below
+    <br />
     to create a new account
-  </q-card-section>
-  <q-card-section>
-    <q-form class="q-gutter-md">
-      <q-input
-        v-model="data.handle"
+  </v-card-text>
+
+  <v-card-text class="pb-0 pt-0">
+    <v-form
+      ref="formRef"
+      @submit.prevent="register">
+      <v-text-field
+        v-model="handle"
         label="Handle"
         type="text"
-        dense
-        outlined
-        :hide-bottom-space="!errors.handle"
+        autocomplete="username"
+        density="comfortable"
+        variant="outlined"
+        clearable
+        hide-details="auto"
         :error="!!errors.handle"
-        :error-message="errors.handle"
+        :error-messages="errors.handle"
         :rules="handleRules"
-      >
-        <template v-slot:prepend> <q-icon name="mdi-at" /> </template>
-      </q-input>
-      <q-input
-        v-model="data.email"
+        @update:model-value="errors.handle = ''"
+        class="mb-4">
+        <template v-slot:prepend-inner>
+          <v-icon icon="mdi-at" />
+        </template>
+      </v-text-field>
+
+      <v-text-field
+        v-model="email"
         label="Email"
         type="email"
         autocomplete="email"
-        dense
-        outlined
-        :hide-bottom-space="!errors.email"
+        density="comfortable"
+        variant="outlined"
+        clearable
+        hide-details="auto"
         :error="!!errors.email"
-        :error-message="errors.email"
+        :error-messages="errors.email"
         :rules="emailRules"
-      />
-      <q-input
-        v-model="data.password"
+        @update:model-value="errors.email = ''"
+        class="mb-4" />
+
+      <v-text-field
+        v-model="password"
         label="Password"
         type="password"
         autocomplete="new-password"
-        dense
-        outlined
-        :hide-bottom-space="!errors.password"
+        density="comfortable"
+        variant="outlined"
+        clearable
+        hide-details="auto"
         :error="!!errors.password"
-        :error-message="errors.password"
+        :error-messages="errors.password"
         :rules="passwordRules"
-      />
-      <q-input
-        v-model="data.confPass"
+        @update:model-value="errors.password = ''"
+        class="mb-4" />
+
+      <v-text-field
+        v-model="confPass"
         label="Confirm Password"
         type="password"
-        autocomplete="repeat-password"
-        dense
-        outlined
-        :hide-bottom-space="!errors.confPass"
+        autocomplete="new-password"
+        density="comfortable"
+        variant="outlined"
+        clearable
+        hide-details="auto"
         :error="!!errors.confPass"
-        :error-message="errors.confPass"
-        :rules="[
-          (val: string) => val === data.password || 'Passwords do not match',
-        ]"
-      />
-    </q-form>
-  </q-card-section>
-  <span class="flex flex-center q-mb-lg q-gutter-md">
-    <q-btn
-      label="Continue"
+        :error-messages="errors.confPass"
+        :rules="[(val: string) => val === password || 'Passwords do not match']"
+        class="mb-2" />
+    </v-form>
+  </v-card-text>
+
+  <v-card-text class="d-flex justify-center pb-0 pt-2 ma-0">
+    <v-btn
       color="primary"
-      style="width: 75%"
+      type="submit"
+      size="large"
+      class="w-75"
       :loading="isRegistering"
-      @click="register"
-    />
-  </span>
-  <span class="flex flex-center q-mb-md q-gutter-md">
-    Already have an account?
-    <a
-      href="#"
-      @click="session.auth = AuthState.Login"
-      class="q-mt-none q-ml-sm"
-      >Login</a
-    >
-  </span>
-  <q-separator class="q-mb-sm" />
-  <span class="flex flex-center q-mb-sm">Sign up with</span>
-  <q-card-section class="flex flex-center q-pa-none q-mb-md q-gutter-sm">
-    <div class="dummy-box"></div>
-    <div class="dummy-box"></div>
-    <div class="dummy-box"></div>
-  </q-card-section>
+      @click="register">
+      Continue
+    </v-btn>
+  </v-card-text>
+
+  <v-card-text class="d-flex justify-center align-center ma-0 pt-2 pb-2">
+    <span class="text-body-2">
+      Already have an account?
+      <a
+        href="#"
+        class="text-primary text-decoration-none ml-2"
+        @click.prevent="session.auth = AuthState.Login">
+        Login
+      </a>
+    </span>
+  </v-card-text>
+
+  <v-divider class="mb-0" />
+
+  <v-card-text class="d-flex justify-center text-body-2 pa-0 mt-3 mb-3">Sign up with</v-card-text>
+
+  <v-card-text class="d-flex justify-center pa-0 mb-4">
+    <div class="d-flex ga-2">
+      <div class="dummy-box">Google</div>
+      <div class="dummy-box">Apple</div>
+      <div class="dummy-box">Discord</div>
+      <div class="dummy-box">GitHub</div>
+    </div>
+  </v-card-text>
 </template>
-<style scoped>
-.dummy-box {
-  height: 64px;
-  width: 64px;
-  background-color: #f5f5f5;
-  border: 1px dashed #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888;
-}
-</style>
+
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useQuasar } from "quasar";
-import { useSessionStore, AuthState } from "src/stores/sessionStore";
-import {
-  handleRules,
-  passwordRules,
-  emailRules,
-} from "src/utils/system/dataRules";
-import {
-  registerUser,
-  type RegisterError,
-} from "src/utils/firebase/auth/register";
-import { sendEmailVerification } from "firebase/auth";
-import { getUserHandle } from "src/utils/firebase/user/handles";
+import { ref } from 'vue'
+import { useSessionStore, AuthState } from '@/stores/sessionStore'
+import { handleRules, emailRules, passwordRules } from './constants'
+import { useSignUp } from '@clerk/vue'
 
-const session = useSessionStore();
-const $q = useQuasar();
+const session = useSessionStore()
+const formRef = ref()
+const { signUp, isLoaded } = useSignUp()
 
-const data = ref({
-  handle: "",
-  email: "",
-  password: "",
-  confPass: "",
-});
+const handle = ref('')
+const email = ref('')
+const password = ref('')
+const confPass = ref('')
+const isRegistering = ref(false)
 
 const errors = ref({
-  handle: "",
-  email: "",
-  password: "",
-  confPass: "",
-});
-
-const isRegistering = ref(false);
+  handle: '',
+  email: '',
+  password: '',
+  confPass: '',
+})
 
 async function register() {
   try {
-    // Clear any previous errors
-    Object.keys(errors.value).forEach((key) => {
-      errors.value[key as keyof typeof errors.value] = "";
-    });
-
-    isRegistering.value = true;
-
-    // Register the user with our new function
-    const result = await registerUser(
-      data.value.email,
-      data.value.password,
-      data.value.handle,
-    );
-
-    if (result.error) {
-      switch (result.error.field) {
-        case "email":
-          errors.value.email = result.error.message;
-          break;
-        case "handle":
-          errors.value.handle = result.error.message;
-          break;
-        case "general":
-          $q.notify({
-            type: "negative",
-            message: result.error.message,
-          });
-          break;
-      }
-      return;
+    if (!isLoaded.value || !signUp.value) {
+      throw new Error('[clerk] Error: signUp is not loaded')
+    }
+    // Clear previous errors
+    errors.value = {
+      handle: '',
+      email: '',
+      password: '',
+      confPass: '',
     }
 
-    if (result.data) {
-      // Send verification email
-      await sendEmailVerification(result.data.user);
+    // Validate form
+    const { valid } = await formRef.value.validate()
+    if (!valid) return
 
-      // Get the handle from Firestore and update session
-      session.user = result.data.user;
-      session.handle = await getUserHandle(result.data.user.uid);
-      session.auth = AuthState.Verify;
+    isRegistering.value = true
+
+    // Step 1: Create the sign-up
+    await signUp.value.create({
+      emailAddress: email.value,
+      password: password.value,
+      username: handle.value,
+    })
+
+    // Step 2: Prepare email verification
+    await signUp.value.prepareEmailAddressVerification({
+      strategy: 'email_code',
+    })
+
+    // Step 3: Store email and switch to verify state
+    session.email = email.value // Store for VerifyForm
+    session.setAuthState(AuthState.Verify)
+  } catch (error: any) {
+    console.error(error)
+
+    if (error.errors && error.errors.length > 0) {
+      error.errors.forEach((err: any) => {
+        switch (err.meta?.paramName) {
+          case 'password':
+            errors.value.password = err.message
+            break
+          case 'email_address':
+            errors.value.email = err.message
+            break
+          case 'username':
+            errors.value.handle = err.message
+            break
+          default:
+            console.error('Unhandled error:', err)
+            break
+        }
+      })
+    } else {
+      errors.value.email = error.message || 'Registration failed. Please try again.'
     }
   } finally {
-    isRegistering.value = false;
+    isRegistering.value = false
   }
 }
 </script>
+
+<style scoped>
+.w-75 {
+  width: 75%;
+}
+</style>

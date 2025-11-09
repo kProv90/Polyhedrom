@@ -1,154 +1,207 @@
 <template>
-  <q-card-section class="flex flex-center column q-pa-none">
-    <q-avatar size="128px" class="q-ma-none" square style="height: 80px">
-      <img src="/src/assets/logo.svg" />
-    </q-avatar>
-  </q-card-section>
+  <v-card-text class="text-caption text-center pa-0 mb-3">
+    Please enter the verification code
+    <br />
+    sent to your email address
+  </v-card-text>
 
-  <q-card-section class="flex flex-center q-pa-sm">
-    <div class="text-h6">Verify Your Account</div>
-  </q-card-section>
+  <v-card-text class="pb-0 pt-0">
+    <v-form
+      ref="formRef"
+      @submit.prevent="handleVerify">
+      <!-- Email Display (read-only) -->
+      <v-text-field
+        :model-value="'krisprovo0@gmx.com'"
+        type="email"
+        density="compact"
+        variant="outlined"
+        disabled
+        hide-details="auto"
+        class="mb-4 centered-email" />
 
-  <q-card-section class="text-caption text-center">
-    We have sent a verification link to your email. Please click the link to
-    verify your account. Once verified, click the button below to continue.
-  </q-card-section>
+      <!-- OTP Input -->
+      <v-otp-input
+        v-model="otp"
+        length="6"
+        variant="outlined"
+        :error="!!errorMessage"
+        class="mb-2" />
 
-  <span class="flex flex-center q-mb-lg q-gutter-md">
-    <q-btn
+      <!-- Error Message -->
+      <div
+        v-if="errorMessage"
+        class="text-error text-caption mt-2 mb-2">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Resend Code Link -->
+      <div class="text-center mt-3 mb-2">
+        <a
+          v-if="!isResending && canResend"
+          href="#"
+          class="text-caption text-primary text-decoration-none"
+          @click.prevent="handleResend">
+          Didn't receive a code? Resend
+        </a>
+        <span
+          v-else-if="!canResend"
+          class="text-caption text-medium-emphasis">
+          Resend code in {{ resendTimer }}s
+        </span>
+        <span
+          v-else
+          class="text-caption text-medium-emphasis">
+          Sending code...
+        </span>
+      </div>
+    </v-form>
+  </v-card-text>
+
+  <v-card-text class="d-flex justify-center pb-0 pt-2 ma-0">
+    <v-btn
       color="primary"
-      outline
-      label="Resend Email"
-      @click="resendEmail"
-      style="width: 35%"
-      :disable="resendCooldown > 0"
-    >
-      <q-tooltip v-if="resendCooldown > 0">
-        Wait {{ resendCooldown }}s before resending
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      :label="buttonLabel"
-      color="primary"
-      style="width: 35%"
-      @click="checkVerification"
-      :loading="checking"
-      :disable="cooldownActive"
-    />
-  </span>
+      type="submit"
+      size="large"
+      class="w-75"
+      :loading="isVerifying"
+      :disabled="otp.length !== 6"
+      @click="handleVerify">
+      Verify
+    </v-btn>
+  </v-card-text>
+
+  <v-card-text class="d-flex justify-center align-center ma-0 pt-2 pb-4">
+    <span class="text-body-2">
+      Wrong email?
+      <a
+        href="#"
+        class="text-primary text-decoration-none ml-2"
+        @click.prevent="session.setAuthState(AuthState.Register)">
+        Go back
+      </a>
+    </span>
+  </v-card-text>
 </template>
 
-<style scoped></style>
-
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from "vue";
-import { getAuth, sendEmailVerification } from "firebase/auth";
-import { useSessionStore, AuthState } from "src/stores/sessionStore";
-import { useRouter } from "vue-router";
-import { useQuasar } from "quasar";
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useSessionStore, AuthState, UserState } from '@/stores/sessionStore'
+import { useSignUp } from '@clerk/vue'
 
-const auth = getAuth();
-const session = useSessionStore();
-const router = useRouter();
-const $q = useQuasar();
+const session = useSessionStore()
+const formRef = ref()
+const { signUp, setActive, isLoaded } = useSignUp()
 
-const checking = ref(false);
-const cooldownSeconds = ref(0);
-const resendCooldown = ref(0);
-let cooldownTimer: NodeJS.Timeout | null = null;
-let resendTimer: NodeJS.Timeout | null = null;
+const props = defineProps<{
+  email?: string
+}>()
 
-const cooldownActive = computed(() => cooldownSeconds.value > 0);
+const otp = ref('')
+const isVerifying = ref(false)
+const isResending = ref(false)
+const errorMessage = ref('')
+const resendTimer = ref(0)
+let resendInterval: number | null = null
 
-const buttonLabel = computed(() => {
-  if (checking.value) return "Checking...";
-  if (cooldownSeconds.value > 0) return `Wait ${cooldownSeconds.value}s`;
-  return "Check Status";
-});
+const canResend = computed(() => resendTimer.value === 0 && !isResending.value)
 
-async function checkVerification() {
-  checking.value = true;
+// Start resend timer
+const startResendTimer = () => {
+  resendTimer.value = 60
+  resendInterval = window.setInterval(() => {
+    resendTimer.value--
+    if (resendTimer.value <= 0 && resendInterval) {
+      clearInterval(resendInterval)
+      resendInterval = null
+    }
+  }, 1000)
+}
+
+// Handle verification
+async function handleVerify() {
+  if (otp.value.length !== 6 || !signUp.value || !isLoaded.value) return
+
+  errorMessage.value = ''
+  isVerifying.value = true
 
   try {
-    // Reload user data to get fresh verification status
-    await auth.currentUser?.reload();
+    // Attempt email verification
+    const result = await signUp.value.attemptEmailAddressVerification({
+      code: otp.value,
+    })
 
-    if (auth.currentUser?.emailVerified) {
-      session.user = auth.currentUser;
-
-      $q.notify({
-        type: "positive",
-        message: "Thank you for verifying your email! Welcome to Polyhedrom.",
-      });
-
-      // router.push("/dashboard");
-
-      session.auth = AuthState.None;
+    if (result.status === 'complete') {
+      // Set the active session
+      if (setActive.value) {
+        await setActive.value({ session: result.createdSessionId })
+      } else {
+        // Handle the case when setActive.value is not available
+        throw new Error('[clerk] Error: setActive is not available')
+      }
+      // Update session store
+      session.setUserState(UserState.Active)
+      session.setAuthState(AuthState.None)
     } else {
-      $q.notify({
-        type: "warning",
-        message:
-          "Email not verified yet. Please check your inbox and click the verification link.",
-      });
-
-      // Start 30-second cooldown
-      startCooldown();
+      // Handle other statuses
+      console.log('Verification status:', result.status)
+      errorMessage.value = 'Verification incomplete. Please try again.'
     }
-  } catch (error) {
-    console.error("Error checking verification:", error);
-    $q.notify({
-      type: "negative",
-      message: "Error checking verification status",
-    });
+  } catch (error: any) {
+    console.error('Verification error:', error)
+
+    if (error.errors && error.errors.length > 0) {
+      errorMessage.value = error.errors[0].message
+    } else {
+      errorMessage.value = 'Invalid verification code. Please try again.'
+    }
+
+    otp.value = '' // Clear OTP on error
   } finally {
-    checking.value = false;
+    isVerifying.value = false
   }
 }
 
-function startCooldown() {
-  cooldownSeconds.value = 30;
+// Handle resend code
+async function handleResend() {
+  if (!canResend.value || !signUp.value) return
 
-  cooldownTimer = setInterval(() => {
-    cooldownSeconds.value--;
+  isResending.value = true
+  errorMessage.value = ''
 
-    if (cooldownSeconds.value <= 0) {
-      clearInterval(cooldownTimer!);
-      cooldownTimer = null;
-    }
-  }, 1000);
-}
-
-async function resendEmail() {
   try {
-    if (auth.currentUser) {
-      await sendEmailVerification(auth.currentUser);
-
-      $q.notify({
-        type: "positive",
-        message: "Verification email resent!",
-      });
-
-      // Start 60-second cooldown for resend
-      resendCooldown.value = 60;
-      resendTimer = setInterval(() => {
-        resendCooldown.value--;
-        if (resendCooldown.value <= 0) {
-          clearInterval(resendTimer!);
-          resendTimer = null;
-        }
-      }, 1000);
-    }
-  } catch (error) {
-    $q.notify({
-      type: "negative",
-      message: "Failed to resend email",
-    });
+    await signUp.value.prepareEmailAddressVerification({
+      strategy: 'email_code',
+    })
+    startResendTimer()
+    console.log('Verification code resent successfully')
+  } catch (error: any) {
+    console.error('Resend error:', error)
+    errorMessage.value = error.message || 'Failed to resend code. Please try again.'
+  } finally {
+    isResending.value = false
   }
 }
 
-// Cleanup timers when component unmounts
+// Initialize timer on mount
+onMounted(() => {
+  startResendTimer()
+})
+
+// Cleanup on unmount
 onUnmounted(() => {
-  if (cooldownTimer) clearInterval(cooldownTimer);
-  if (resendTimer) clearInterval(resendTimer);
-});
+  if (resendInterval) {
+    clearInterval(resendInterval)
+  }
+})
 </script>
+
+<style scoped>
+.w-75 {
+  width: 75%;
+}
+
+.centered-email :deep(input) {
+  text-align: center;
+  font-weight: 500;
+}
+</style>

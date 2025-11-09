@@ -1,24 +1,36 @@
-import { defineStore } from "pinia";
-import type { User } from "firebase/auth";
+import { defineStore } from 'pinia'
 
 export enum AuthState {
-  None = "None",
-  Login = "Login",
-  Register = "Register",
-  Forgot = "Forgot",
-  Reset = "Reset",
-  Verify = "Verify",
+  None = 'None',
+  Login = 'Login',
+  Register = 'Register',
+  Forgot = 'Forgot',
+  Reset = 'Reset',
+  Verify = 'Verify',
 }
 
-export const useSessionStore = defineStore("session", {
+export enum UserState {
+  None = 'None',
+  Active = 'Active',
+}
+
+export const useSessionStore = defineStore('session', {
   state: () => ({
-    user: null as User | null,
-    auth: AuthState.None,
-    handle: null as string | null,
+    _user: UserState.Active,
+    _auth: AuthState.None,
   }),
   actions: {
-    async updateHandle(newHandle: string) {
-      this.handle = newHandle;
+    setAuthState(state: AuthState) {
+      this._auth = state
+    },
+    setUserState(state: UserState) {
+      this._user = state
+    },
+    getUserState(): UserState {
+      return this._user
+    },
+    getAuthState(): AuthState {
+      return this._auth
     },
   },
-});
+})
