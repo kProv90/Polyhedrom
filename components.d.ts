@@ -11,8 +11,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    DialogBase: typeof import('./src/components/shared/base/DialogBase.vue')['default']
-    DialogBased: typeof import('./src/components/shared/base/DialogBased.vue')['default']
     LoginForm: typeof import('./src/components/shared/auth/LoginForm.vue')['default']
     PolyConstruction: typeof import('./src/components/shared/base/PolyConstruction.vue')['default']
     PolyDialog: typeof import('./src/components/shared/base/PolyDialog.vue')['default']
@@ -23,7 +21,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TemplateRibbon: typeof import('./src/components/desktop/template/TemplateRibbon.vue')['default']
-    UnderConstruction: typeof import('./src/components/shared/base/UnderConstruction.vue')['default']
     VerifyForm: typeof import('./src/components/shared/auth/VerifyForm.vue')['default']
   }
 }

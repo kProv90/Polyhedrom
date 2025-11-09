@@ -6,9 +6,7 @@
   </v-card-text>
 
   <v-card-text class="pb-0 pt-0">
-    <v-form
-      ref="formRef"
-      @submit.prevent="register">
+    <v-form ref="formRef" @submit.prevent="register">
       <v-text-field
         v-model="handle"
         label="Handle"
@@ -22,7 +20,8 @@
         :error-messages="errors.handle"
         :rules="handleRules"
         @update:model-value="errors.handle = ''"
-        class="mb-4">
+        class="mb-4"
+      >
         <template v-slot:prepend-inner>
           <v-icon icon="mdi-at" />
         </template>
@@ -41,7 +40,8 @@
         :error-messages="errors.email"
         :rules="emailRules"
         @update:model-value="errors.email = ''"
-        class="mb-4" />
+        class="mb-4"
+      />
 
       <v-text-field
         v-model="password"
@@ -56,7 +56,8 @@
         :error-messages="errors.password"
         :rules="passwordRules"
         @update:model-value="errors.password = ''"
-        class="mb-4" />
+        class="mb-4"
+      />
 
       <v-text-field
         v-model="confPass"
@@ -70,7 +71,8 @@
         :error="!!errors.confPass"
         :error-messages="errors.confPass"
         :rules="[(val: string) => val === password || 'Passwords do not match']"
-        class="mb-2" />
+        class="mb-2"
+      />
     </v-form>
   </v-card-text>
 
@@ -81,7 +83,8 @@
       size="large"
       class="w-75"
       :loading="isRegistering"
-      @click="register">
+      @click="register"
+    >
       Continue
     </v-btn>
   </v-card-text>
@@ -92,7 +95,8 @@
       <a
         href="#"
         class="text-primary text-decoration-none ml-2"
-        @click.prevent="session.auth = AuthState.Login">
+        @click.prevent="session.setAuthState(AuthState.Login)"
+      >
         Login
       </a>
     </span>
@@ -100,7 +104,9 @@
 
   <v-divider class="mb-0" />
 
-  <v-card-text class="d-flex justify-center text-body-2 pa-0 mt-3 mb-3">Sign up with</v-card-text>
+  <v-card-text class="d-flex justify-center text-body-2 pa-0 mt-3 mb-3"
+    >Sign up with</v-card-text
+  >
 
   <v-card-text class="d-flex justify-center pa-0 mb-4">
     <div class="d-flex ga-2">
@@ -113,87 +119,87 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useSessionStore, AuthState } from '@/stores/sessionStore'
-import { handleRules, emailRules, passwordRules } from './constants'
-import { useSignUp } from '@clerk/vue'
+import { ref } from "vue";
+import { useSessionStore, AuthState } from "@/stores/sessionStore";
+import { handleRules, emailRules, passwordRules } from "./constants";
+import { useSignUp } from "@clerk/vue";
 
-const session = useSessionStore()
-const formRef = ref()
-const { signUp, isLoaded } = useSignUp()
+const session = useSessionStore();
+const formRef = ref();
+const { signUp, isLoaded } = useSignUp();
 
-const handle = ref('')
-const email = ref('')
-const password = ref('')
-const confPass = ref('')
-const isRegistering = ref(false)
+const handle = ref("");
+const email = ref("");
+const password = ref("");
+const confPass = ref("");
+const isRegistering = ref(false);
 
 const errors = ref({
-  handle: '',
-  email: '',
-  password: '',
-  confPass: '',
-})
+  handle: "",
+  email: "",
+  password: "",
+  confPass: "",
+});
 
 async function register() {
   try {
     if (!isLoaded.value || !signUp.value) {
-      throw new Error('[clerk] Error: signUp is not loaded')
+      throw new Error("[clerk] Error: signUp is not loaded");
     }
     // Clear previous errors
     errors.value = {
-      handle: '',
-      email: '',
-      password: '',
-      confPass: '',
-    }
+      handle: "",
+      email: "",
+      password: "",
+      confPass: "",
+    };
 
     // Validate form
-    const { valid } = await formRef.value.validate()
-    if (!valid) return
+    const { valid } = await formRef.value.validate();
+    if (!valid) return;
 
-    isRegistering.value = true
+    isRegistering.value = true;
 
     // Step 1: Create the sign-up
     await signUp.value.create({
       emailAddress: email.value,
       password: password.value,
       username: handle.value,
-    })
+    });
 
     // Step 2: Prepare email verification
     await signUp.value.prepareEmailAddressVerification({
-      strategy: 'email_code',
-    })
+      strategy: "email_code",
+    });
 
     // Step 3: Store email and switch to verify state
-    session.email = email.value // Store for VerifyForm
-    session.setAuthState(AuthState.Verify)
+    session.setAuthState(AuthState.Verify);
   } catch (error: any) {
-    console.error(error)
+    console.error(error);
 
     if (error.errors && error.errors.length > 0) {
       error.errors.forEach((err: any) => {
         switch (err.meta?.paramName) {
-          case 'password':
-            errors.value.password = err.message
-            break
-          case 'email_address':
-            errors.value.email = err.message
-            break
-          case 'username':
-            errors.value.handle = err.message
-            break
+          case "password":
+            errors.value.password = err.message;
+            break;
+          case "email_address":
+            errors.value.email = err.message;
+            break;
+          case "username":
+            errors.value.handle = err.message;
+            break;
           default:
-            console.error('Unhandled error:', err)
-            break
+            console.error("Unhandled error:", err);
+            break;
         }
-      })
+      });
     } else {
-      errors.value.email = error.message || 'Registration failed. Please try again.'
+      errors.value.email =
+        error.message || "Registration failed. Please try again.";
     }
   } finally {
-    isRegistering.value = false
+    isRegistering.value = false;
   }
 }
 </script>
