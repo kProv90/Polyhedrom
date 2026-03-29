@@ -1,9 +1,7 @@
 <template>
-  <ClerkLoaded>
     <v-app>
       <v-layout>
         <!-- Bookmark Menu Button (Only shown when user is logged in) -->
-        <SignedIn>
           <div
             v-if="mobile"
             class="bookmark-menu-btn"
@@ -16,22 +14,22 @@
           </div>
           <!-- Left Drawer (Navigation) -->
           <PolyNav v-model="leftDrawerOpen" />
-        </SignedIn>
         <v-main class="poly-page">
           <router-view />
         </v-main>
       </v-layout>
     </v-app>
-  </ClerkLoaded>
+  <PolySnack />
 </template>
-
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, Suspense, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
-import { SignedIn, ClerkLoaded } from '@clerk/vue'
-import PolyNav from './components/shared/base/PolyNav.vue'
+import PolyNav from './components/ui/PolyNav.vue'
+import PolySnack from '@/components/ui/PolySnack.vue'
 
 const { mobile } = useDisplay()
+
+// Initialize auth token getter for non-component usage (e.g. stores)
 
 const leftDrawerOpen = ref(!mobile.value)
 </script>

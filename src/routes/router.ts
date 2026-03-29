@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import * as Pages from '@/pages'
+import * as Pages from '@/pages/'
 
 const routes = [
   {
@@ -10,7 +10,7 @@ const routes = [
   {
     path: '/editor',
     name: 'Template Editor',
-    component: Pages.TemplatePage,
+    component: Pages.Tools.WorkshopPage,
     meta: {
       requiresAuth: true,
     },
@@ -18,7 +18,7 @@ const routes = [
   {
     path: '/bazaar',
     name: 'Bazaar',
-    component: Pages.BazaarPage,
+    component: Pages.Main.BazaarPage,
     meta: {
       requiresAuth: true,
     },
@@ -26,7 +26,7 @@ const routes = [
   {
     path: '/messages',
     name: 'Messages',
-    component: Pages.MessagePage,
+    component: Pages.Main.MessagePage,
     meta: {
       requiresAuth: true,
     },
@@ -34,7 +34,7 @@ const routes = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: Pages.DashboardPage,
+    component: Pages.Main.DashboardPage,
     meta: {
       requiresAuth: true,
     },
@@ -42,7 +42,7 @@ const routes = [
   {
     path: '/characters',
     name: 'Characters',
-    component: Pages.CharacterPage,
+    component: Pages.Main.CharacterPage,
     meta: {
       requiresAuth: true,
     },
@@ -50,7 +50,7 @@ const routes = [
   {
     path: '/campaigns',
     name: 'Campaigns',
-    component: Pages.CampaignPage,
+    component: Pages.Main.CampaignPage,
     meta: {
       requiresAuth: true,
     },
@@ -58,12 +58,36 @@ const routes = [
   {
     path: '/forum',
     name: 'Forum',
-    component: Pages.ForumPage,
+    component: Pages.Main.ForumPage,
     meta: {
       requiresAuth: true,
     },
   },
-  // Add more routes as needed
+  {
+    path: '/drive',
+    name: 'Virtual Drive',
+    component: Pages.Main.VirtualDrivePage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  // Tools
+  {
+    path: '/workshop',
+    name: 'Workshop',
+    component: Pages.Tools.WorkshopPage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/tools/workshop/editor',
+    name: 'Workshop Editor',
+    component: () => import('@/components/workshop/WsCore.vue'),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ]
 
 const router = createRouter({

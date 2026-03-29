@@ -5,16 +5,16 @@
       <v-container
         class="hero-section"
         fluid>
-        <SignedOut>
+        <template v-if="!firebaseUser">
           <v-btn
             color="primary"
-            class="floating-login-btn bg-white"
+            class="floating-login-btn bg-surface"
             prepend-icon="mdi-account"
             variant="outlined"
             @click="session.setAuthState(AuthState.Login)">
             Login
           </v-btn>
-        </SignedOut>
+        </template>
         <v-container>
           <v-row justify="center">
             <v-col
@@ -305,12 +305,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUser, SignedOut } from '@clerk/vue'
-import { useSessionStore, AuthState, UserState } from '@/stores/sessionStore'
-import { PolyDialog, PolyLogo } from '@/components/shared/base'
-import { LoginForm, RegisterForm, ResetForm, VerifyForm } from '@/components/shared/auth'
+import { onAuthStateChanged } from 'firebase/auth'
+import type { User } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
+import { useSessionStore, AuthState } from '@/stores/sessionStore'
+import { PolyDialog, PolyLogo } from '@/components/ui'
+import { LoginForm, RegisterForm, ResetForm, VerifyForm } from '@/components/auth'
 
-const user = useUser()
+const firebaseUser = ref<User | null>(null)
+onAuthStateChanged(auth, (u) => {
+  firebaseUser.value = u
+})
+
 const router = useRouter()
 const session = useSessionStore()
 const authDlg = computed(() => session.getAuthState() != AuthState.None)
