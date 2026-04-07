@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { authFetch } from '@/lib/auth'
 import { api } from '@/lib/api'
 import { useUiStore } from '@/stores/uiStore'
+import { fakeDrive } from '@/lib/api/fake'
 
 export const useDriveStore = defineStore('drive', {
   state: () => ({
@@ -215,8 +216,8 @@ export const useDriveStore = defineStore('drive', {
       // 1. Capture current location logic
       const currentFolderId = this.path.length > 0 ? this.path[this.path.length - 1]?.id : null
 
-      // 2. Fetch
-      const drive = await api.drive.get.all()
+      // 2. Fetch (use fake data until backend is ready)
+      const drive = fakeDrive
       this.data = drive
 
       // 3. Restore path or reset

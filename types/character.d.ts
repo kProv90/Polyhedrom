@@ -6,6 +6,8 @@ interface Character {
   level: number
   status: 'Concept' | 'In Campaign' | 'Retired'
   campaign: string | null
+  system: string | null
   traits: string[]
   created: string
+  image?: string | null
 }

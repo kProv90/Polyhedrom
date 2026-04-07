@@ -5,7 +5,7 @@
       title="The Bazaar"
       subtitle="Browse TTRPG resources from creators around the world"
       icon="mdi-storefront-outline"
-      gradient="linear-gradient(135deg, #FFB86C 0%, #FF79C6 100%)" />
+      gradient="linear-gradient(135deg, rgb(var(--v-theme-warning)) 0%, rgb(var(--v-theme-secondary)) 100%)" />
 
     <div class="bz-body">
 

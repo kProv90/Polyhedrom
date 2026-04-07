@@ -29,5 +29,12 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    proxy: {
+      '/mdn-api': {
+        target: 'https://developer.mozilla.org',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/mdn-api/, ''),
+      },
+    },
   },
 })

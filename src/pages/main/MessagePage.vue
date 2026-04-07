@@ -5,7 +5,7 @@
       title="Messages"
       subtitle="Your conversations and party communications"
       icon="mdi-email-outline"
-      gradient="linear-gradient(135deg, #8BE9FD 0%, #6272A4 100%)" />
+      gradient="linear-gradient(135deg, rgb(var(--v-theme-info)) 0%, rgb(var(--v-theme-primary)) 100%)" />
 
     <div class="mg-body">
 

@@ -6,7 +6,7 @@ export const headers = [
   { title: 'Level', key: 'level', sortable: true },
   { title: 'Status', key: 'status', sortable: true },
   { title: 'Campaign', key: 'campaign', sortable: true },
-  { title: 'Traits', key: 'traits', sortable: false },
+  { title: 'System', key: 'system', sortable: true },
   { title: 'Created', key: 'created', sortable: true },
   { title: '', key: 'actions', sortable: false, align: 'end' as const },
 ]

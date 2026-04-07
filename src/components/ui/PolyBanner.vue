@@ -23,7 +23,7 @@ const props = defineProps<{
 }>()
 
 const bannerStyle = computed(() => ({
-  background: props.gradient ?? 'linear-gradient(135deg, #BD93F9 0%, #FF79C6 100%)',
+  background: props.gradient ?? 'linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%)',
 }))
 </script>
 
@@ -72,10 +72,12 @@ const bannerStyle = computed(() => ({
 }
 
 :slotted(.poly-banner-btn) {
+  background: rgba(0, 0, 0, 0.35) !important;
+  color: #fff !important;
   transition: background 0.2s ease !important;
 }
 
 :slotted(.poly-banner-btn):hover {
-  background: rgba(0,0,0,0.5) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
 }
 </style>

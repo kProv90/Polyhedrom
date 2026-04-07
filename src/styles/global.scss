@@ -58,6 +58,24 @@ samp,
   font-weight: 300;
 }
 
+// Reusable hover-lightening class for cards.
+// Add class="on-hover" to any v-card that should lighten on hover.
+.on-hover {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: transparent;
+    pointer-events: none;
+    transition: background-color 0.15s ease;
+  }
+
+  &:hover::after {
+    background-color: rgba(var(--v-theme-on-surface), 0.06);
+  }
+}
+
 .font-regular {
   font-weight: 400;
 }

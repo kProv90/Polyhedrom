@@ -1,4 +1,2 @@
-<template>
-  <v-card></v-card>
-</template>
+<template></template>
 <script setup lang="ts"></script>

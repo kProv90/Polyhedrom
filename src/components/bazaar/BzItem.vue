@@ -72,11 +72,6 @@ const categoryColor = computed(() => props.item.category === 'Premium' ? 'accent
 .bz-card {
   display: flex;
   flex-direction: column;
-  transition: background-color 0.15s ease;
-}
-
-.bz-card:hover {
-  background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
 .bz-card-badge {

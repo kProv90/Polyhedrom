@@ -6,8 +6,8 @@
       title="Characters"
       subtitle="Build and manage your character roster"
       icon="mdi-account-outline"
-      gradient="linear-gradient(135deg, #BD93F9 0%, #8BE9FD 100%)">
-      <v-btn prepend-icon="mdi-plus" variant="flat" rounded="pill" class="poly-banner-btn" style="background: rgba(0,0,0,0.35); color: white">
+      gradient="linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-info)) 100%)">
+      <v-btn prepend-icon="mdi-plus" variant="flat" rounded="pill" class="poly-banner-btn">
         New Character
       </v-btn>
     </PolyBanner>
@@ -65,12 +65,14 @@
       item-value="id"
       class="ch-table rounded-lg flex-grow-1"
       fixed-header
-      height="100%">
+      height="100%"
+      @click:row="(_: Event, { item }: { item: Character }) => openCharacter(item)">
 
       <!-- Avatar -->
       <template #[`item.avatar`]="{ item }">
         <v-avatar size="32">
-          <v-img :src="`https://i.pravatar.cc/64?u=${item.name}`" :alt="item.name" />
+          <v-img v-if="item.image !== null" :src="item.image ?? `https://i.pravatar.cc/64?u=${item.name}`" :alt="item.name" />
+          <v-icon v-else size="20" color="medium-emphasis" style="background-color: rgb(var(--v-theme-surface)); width: 100%; height: 100%; border-radius: 50%; border: 1px solid rgba(var(--v-theme-on-surface), 0.2);">mdi-account-outline</v-icon>
         </v-avatar>
       </template>
 
@@ -114,30 +116,20 @@
       </template>
 
       <!-- Traits -->
-      <template #[`item.traits`]="{ item }">
-        <span v-if="item.status === 'Concept'" class="text-medium-emphasis text-body-2">—</span>
-        <div v-else class="d-flex flex-wrap" style="gap: 4px">
-          <v-chip
-            v-for="trait in item.traits"
-            :key="trait"
-            size="x-small"
-            variant="outlined">
-            {{ trait }}
-          </v-chip>
-        </div>
+      <template #[`item.system`]="{ item }">
+        <v-chip v-if="item.system" size="x-small" color="accent" variant="tonal">{{ item.system }}</v-chip>
+        <span v-else class="text-medium-emphasis text-body-2">—</span>
       </template>
 
       <!-- Actions -->
       <template #[`item.actions`]="{ item }">
         <div class="d-flex align-center" style="gap: 4px">
-          <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" />
           <v-menu location="bottom end">
             <template #activator="{ props }">
               <v-btn icon="mdi-dots-vertical" size="x-small" variant="text" v-bind="props" />
             </template>
-            <v-list density="compact">
+            <v-list density="compact" slim>
               <v-list-item prepend-icon="mdi-content-copy" title="Duplicate" />
-              <v-list-item prepend-icon="mdi-sword" title="Add to Campaign" />
               <v-list-item prepend-icon="mdi-export-variant" title="Export" />
               <v-divider />
               <v-list-item prepend-icon="mdi-delete-outline" title="Delete" class="text-error" />
@@ -158,19 +150,20 @@
     <!-- Card Grid -->
     <div v-if="viewMode === 'card'" class="ch-card-grid">
       <ChCard
-        v-for="character in characters"
+        v-for="character in filteredCharacters"
         :key="character.id"
         :character="character"
         :edit-mode="editMode"
         :is-selected="selected.includes(character.id)"
-        @toggle="toggleCard(character.id)" />
+        @toggle="toggleCard(character.id)"
+        @open="openCharacter" />
     </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { PolyBanner } from '@/components/ui'
 import ChCard from '@/components/character/ChCard.vue'
 import { headers, statusColor } from '@/components/character/constants'
@@ -184,10 +177,26 @@ const sortBy = ref([{ key: 'name', order: 'asc' as const }])
 
 const characters = ref<Character[]>(fakeCharacters)
 
+const filteredCharacters = computed(() => {
+  const q = search.value.toLowerCase().trim()
+  if (!q) return characters.value
+  return characters.value.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    c.race.toLowerCase().includes(q) ||
+    c.class.toLowerCase().includes(q) ||
+    (c.campaign ?? '').toLowerCase().includes(q)
+  )
+})
+
 function toggleCard(id: number) {
   const idx = selected.value.indexOf(id)
   if (idx === -1) selected.value.push(id)
   else selected.value.splice(idx, 1)
+}
+
+function openCharacter(character: Character) {
+  // TODO: navigate to character edit page
+  console.log('Open character:', character.name)
 }
 </script>
 
@@ -212,10 +221,11 @@ function toggleCard(id: number) {
 
 .ch-table :deep(tbody tr) {
   transition: background-color 0.15s ease;
+  cursor: pointer;
 }
 
 .ch-table :deep(tbody tr:hover td) {
-  background-color: rgba(255, 255, 255, 0.06) !important;
+  background-color: rgba(var(--v-theme-on-surface), 0.06) !important;
 }
 
 .ch-card-grid {

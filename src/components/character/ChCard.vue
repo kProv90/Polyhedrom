@@ -1,58 +1,64 @@
 <template>
   <v-card
-    class="ch-card"
+    class="ch-card on-hover"
     :class="{ 'ch-card--selected': isSelected }"
-    variant="tonal">
+    rounded="lg"
+    style="cursor: pointer"
+    @click="$emit('open', character)">
 
-    <div class="ch-card-top">
-      <v-avatar size="56">
-        <v-img :src="`https://i.pravatar.cc/150?u=${character.name}`" :alt="character.name" />
-      </v-avatar>
+    <v-img
+      :src="character.image !== null ? (character.image ?? `https://i.pravatar.cc/300?u=${character.name}`) : undefined"
+      :alt="character.name"
+      height="320"
+      cover>
+
+      <template #placeholder>
+        <div class="ch-card-placeholder">
+          <v-icon size="120" color="medium-emphasis">mdi-account-outline</v-icon>
+        </div>
+      </template>
+
+      <!-- Status chip — top right -->
       <div class="ch-card-topright">
-        <v-chip size="small" :color="statusColor(character.status)" variant="tonal">
+        <v-chip size="small" :color="statusColor(character.status)" variant="flat">
           {{ character.status }}
         </v-chip>
+      </div>
+
+      <!-- Checkbox — top left -->
+      <div v-if="editMode" class="ch-card-topleft">
         <v-checkbox-btn
-          v-if="editMode"
           :model-value="isSelected"
           color="secondary"
           density="compact"
           @click.stop="$emit('toggle')" />
       </div>
-    </div>
 
-    <v-card-title class="pb-0 pt-3 px-4">{{ character.name }}</v-card-title>
-    <v-card-subtitle class="px-4 pb-2">
-      <span v-if="character.status !== 'Concept'">{{ character.race }} · {{ character.class }} · Lv {{ character.level }}</span>
-      <span v-else class="text-medium-emphasis">Concept</span>
-    </v-card-subtitle>
-
-    <v-card-text class="pt-0 px-4">
-      <div v-if="character.campaign" class="d-flex align-center" style="gap: 6px">
-        <v-icon size="14" color="secondary">mdi-sword</v-icon>
-        <span class="text-caption text-medium-emphasis">{{ character.campaign }}</span>
+      <!-- Gradient overlay + text — bottom -->
+      <div class="ch-card-overlay">
+        <div class="text-h6 font-weight-bold text-white">{{ character.name }}</div>
+        <div class="text-body-2" style="color: rgba(255,255,255,0.75);">
+          <span v-if="character.status !== 'Concept'">{{ character.race }} {{ character.class }} {{ character.level }}</span>
+          <span v-else>Concept</span>
+        </div>
       </div>
-      <div v-if="character.status !== 'Concept'" class="d-flex flex-wrap mt-2" style="gap: 4px">
-        <v-chip v-for="trait in character.traits" :key="trait" size="x-small" variant="outlined">{{ trait }}</v-chip>
-      </div>
-    </v-card-text>
 
-    <v-card-actions class="px-4 pb-3 mt-auto">
-      <v-menu location="bottom end">
-        <template #activator="{ props }">
-          <v-btn size="small" variant="text" icon="mdi-dots-vertical" v-bind="props" />
-        </template>
-        <v-list density="compact">
-          <v-list-item prepend-icon="mdi-content-copy" title="Duplicate" />
-          <v-list-item prepend-icon="mdi-sword" title="Add to Campaign" />
-          <v-list-item prepend-icon="mdi-export-variant" title="Export" />
-          <v-divider />
-          <v-list-item prepend-icon="mdi-delete-outline" title="Delete" class="text-error" />
-        </v-list>
-      </v-menu>
-      <v-spacer />
-      <v-btn prepend-icon="mdi-pencil-outline" variant="outlined" size="small" rounded="pill">Edit</v-btn>
-    </v-card-actions>
+      <!-- Three-dot menu — bottom right, inside image -->
+      <div class="ch-card-menu">
+        <v-menu location="bottom end">
+          <template #activator="{ props }">
+            <v-btn size="small" variant="text" icon="mdi-dots-vertical" v-bind="props" @click.stop />
+          </template>
+          <v-list density="compact" slim>
+            <v-list-item prepend-icon="mdi-content-copy" title="Duplicate" />
+            <v-list-item prepend-icon="mdi-export-variant" title="Export" />
+            <v-divider />
+            <v-list-item prepend-icon="mdi-delete-outline" title="Delete" class="text-error" />
+          </v-list>
+        </v-menu>
+      </div>
+
+    </v-img>
 
   </v-card>
 </template>
@@ -66,34 +72,56 @@ defineProps<{
   isSelected: boolean
 }>()
 
-defineEmits<{ toggle: [] }>()
+defineEmits<{ toggle: []; open: [character: Character] }>()
 </script>
 
 <style scoped>
 .ch-card {
-  transition: background-color 0.15s ease;
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
-.ch-card:hover {
-  background-color: rgba(255, 255, 255, 0.06) !important;
+.ch-card-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(var(--v-theme-surface));
 }
 
 .ch-card--selected {
   outline: 2px solid rgb(var(--v-theme-secondary));
 }
 
-.ch-card-top {
-  padding: 16px 16px 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
 .ch-card-topright {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
   gap: 4px;
+  z-index: 1;
+}
+
+.ch-card-topleft {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1;
+}
+
+.ch-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 48px 14px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, transparent 100%);
+}
+
+.ch-card-menu {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 1;
 }
 </style>

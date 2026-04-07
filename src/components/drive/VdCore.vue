@@ -7,7 +7,7 @@
       class="h-100 pa-4 pr-0">
       <VdStatus />
     </v-sheet>
-    <v-sheet class="w-100 pa-4 ma-4 poly-page rounded position-relative">
+    <v-sheet class="w-100 pa-4 ma-4 poly-page rounded position-relative overflow-hidden">
       <VdBreadcrumbs :items="crumbs" />
       <VdContents />
       <VdConfirmation />
@@ -15,11 +15,11 @@
       <v-overlay
         v-model="showPreview"
         contained
-        class="align-center justify-center w-100 h-100"
+        class="align-center justify-center"
         scrim="black"
         opacity="0.9">
-        <div class="d-flex flex-column align-center h-100 w-100">
-          <div class="d-flex justify-space-between w-100 mb-2 align-center px-4 pt-2">
+        <div class="d-flex flex-column align-center justify-center w-100 h-100" style="overflow: hidden;">
+          <div class="d-flex justify-space-between align-center px-4 pt-2 pb-2 w-100 flex-shrink-0">
             <span class="text-h6 text-white text-truncate">
               {{ driveStore.previewItem?.title }}
             </span>
@@ -30,10 +30,10 @@
               color="white"
               @click="driveStore.closePreview()"></v-btn>
           </div>
-          <v-img
+          <img
             v-if="driveStore.previewItem"
-            style="height: auto; width: 60vw; max-height: 85vh; max-width: auto"
-            :src="driveStore.previewItem.ref!"></v-img>
+            :src="driveStore.previewItem.ref!"
+            style="max-width: 90%; max-height: calc(100% - 56px); width: auto; height: auto; object-fit: contain; display: block;" />
         </div>
       </v-overlay>
     </v-sheet>

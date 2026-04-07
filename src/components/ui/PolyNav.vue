@@ -7,7 +7,19 @@
     <v-list
       :lines="false"
       density="comfortable"
+      color="primary"
       nav>
+      <!-- Logo — home button -->
+      <v-list-item
+        class="nav-logo-item"
+        :ripple="false"
+        @click.prevent="router.push('/')">
+        <template #prepend>
+          <img src="@/assets/logo.svg" class="nav-logo" alt="Polyhedrom" />
+        </template>
+        <v-list-item-title class="font-weight-bold text-body-1">Polyhedrom</v-list-item-title>
+      </v-list-item>
+      <v-divider class="mt-2 mb-2" />
       <v-list-item
         v-for="(item, i) in items"
         :key="i"
@@ -42,6 +54,13 @@
       </v-list-item>
     </v-list>
     <template v-slot:append>
+      <v-list :lines="false" density="comfortable" nav>
+        <v-list-item
+          :prepend-icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+          @click="toggleTheme">
+          <v-list-item-title>{{ isDark ? 'Light Mode' : 'Dark Mode' }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
       <v-list-item
         :prepend-avatar="profile.avatar"
         class="mb-2">
@@ -73,10 +92,21 @@
 .v-list-item-subtitle {
   min-height: 20px;
 }
+
+.nav-logo-item {
+  cursor: pointer;
+}
+
+.nav-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
 </style>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useTheme } from 'vuetify'
 import { useSessionStore, UserState } from '@/stores/sessionStore'
 import { useDisplay } from 'vuetify'
 import { onAuthStateChanged, signOut as fbSignOut } from 'firebase/auth'
@@ -91,6 +121,12 @@ onAuthStateChanged(auth, (user) => {
 const router = useRouter()
 const session = useSessionStore()
 const { mobile } = useDisplay()
+const theme = useTheme()
+
+const isDark = computed(() => theme.global.current.value.dark)
+function toggleTheme() {
+  theme.change(isDark.value ? 'light' : 'dark')
+}
 
 const isExpanded = ref(false)
 
@@ -102,7 +138,7 @@ const profile = computed(() => ({
 
 const handleSignOut = () => fbSignOut(auth)
 
-export interface NavItemProps {
+interface NavItemProps {
   text: string
   icon: string
   action?: () => void
@@ -133,7 +169,8 @@ const handleNavClick = (item: NavItemProps) => {
 }
 
 const isRouteActive = (route: string): boolean => {
-  return router.currentRoute.value.path === route
+  const current = router.currentRoute.value.path
+  return current === route || current.startsWith(route + '/')
 }
 
 const toggleUserMenu = () => {

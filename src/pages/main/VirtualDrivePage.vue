@@ -4,7 +4,7 @@
       title="Virtual Drive"
       subtitle="Your files, assets, and shared resources"
       icon="mdi-folder-multiple-outline"
-      gradient="linear-gradient(135deg, #50FA7B 0%, #8BE9FD 100%)" />
+      gradient="linear-gradient(135deg, rgb(var(--v-theme-success)) 0%, rgb(var(--v-theme-info)) 100%)" />
     <div class="vd-body">
       <VdCore />
     </div>
