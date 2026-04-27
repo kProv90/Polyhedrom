@@ -1,171 +1,117 @@
 <template>
-  <v-layout class="workshop-editor rounded-md border">
-    <!-- Editor Header -->
-    <v-app-bar density="compact">
+  <v-layout class="workshop-editor">
+    <!-- Area 2 — Toolbar -->
+    <v-toolbar
+      density="compact"
+      class="ws-toolbar">
       <v-btn
         icon="mdi-arrow-left"
         variant="text"
-        @click="goBack" />
-      <v-app-bar-title class="ml-4">{{ templateName }}</v-app-bar-title>
+        color="white"
+        @click="router.push('/workshop')" />
+      <v-toolbar-title class="text-white">{{ templateName }}</v-toolbar-title>
       <v-spacer />
+      <v-btn
+        icon="mdi-cog-outline"
+        variant="text"
+        color="white"
+        @click="openSettingsDialog" />
+    </v-toolbar>
 
-      <v-tooltip
-        location="bottom"
-        text="Save"
-        density="compact">
-        <template v-slot:activator="{ props }">
-          <v-btn
-            icon="mdi-content-save"
-            v-bind="props"
-            variant="text"
-            @click="saveTemplate" />
-        </template>
-      </v-tooltip>
+    <!-- Body row: Palette | Center | Properties -->
+    <div class="ws-body">
+      <!-- Area 3: Component palette -->
+      <WsPalette />
 
-      <v-tooltip
-        location="bottom"
-        text="Preview"
-        density="compact">
-        <template v-slot:activator="{ props }">
-          <v-btn
-            icon="mdi-eye"
-            v-bind="props"
-            variant="text"
-            @click="previewMode = !previewMode" />
-        </template>
-      </v-tooltip>
-
-      <v-tooltip
-        location="bottom"
-        text="Print Sheet"
-        density="compact">
-        <template v-slot:activator="{ props }">
-          <v-btn
-            icon="mdi-printer"
-            v-bind="props"
-            variant="text"
-            @click="saveTemplate" />
-        </template>
-      </v-tooltip>
-
-      <v-menu density="compact">
-        <template v-slot:activator="{ props }">
-          <v-btn
-            icon="mdi-dots-vertical"
-            v-bind="props"
-            variant="text" />
-        </template>
-        <v-list density="compact">
-          <v-list-item
-            title="Share Template"
-            @click="showShareDialog = true" />
-          <v-list-item
-            title="Template Settings"
-            @click="showSettingsDialog = true" />
-        </v-list>
-      </v-menu>
-    </v-app-bar>
-
-    <!-- Main Editor Layout -->
-    <v-main class="d-flex flex-column overflow-auto">
-      <!-- Main Work Area -->
-      <div class="flex-grow-1 d-flex align-center justify-center pa-0">
-        <WsSurface
-          :grid-dimensions="gridDimensions"
-          :grid-cols="GRID_COLS" />
+      <!-- Area 4 + 5: Canvas sub-bar and surface -->
+      <div class="ws-center">
+        <div class="ws-canvas-bar">
+          <!-- Area 4 controls built later -->
+        </div>
+        <div class="ws-canvas-surface">
+          <WsSurface />
+        </div>
       </div>
-    </v-main>
 
-    <!-- Dialogs -->
-    <v-dialog
-      v-model="showShareDialog"
-      width="400">
-      <v-card>
-        <v-card-title>Share Template</v-card-title>
-        <v-card-text>
-          <p class="mb-4">Share this template with other users for collaboration.</p>
-          <v-text-field
-            label="User Email"
-            placeholder="user@example.com"
-            density="compact"
-            @keyup.enter="shareTemplate" />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            text="Cancel"
-            @click="showShareDialog = false" />
-          <v-btn
-            text="Share"
-            color="primary"
-            @click="shareTemplate" />
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <!-- Area 6: Properties panel (built later) -->
+      <div class="ws-properties"></div>
+    </div>
 
+    <!-- Settings Dialog -->
     <v-dialog
       v-model="showSettingsDialog"
-      width="500">
+      width="520">
       <v-card>
-        <v-card-title>Template Settings</v-card-title>
-        <v-card-text>
+        <v-toolbar
+          density="compact"
+          :title="'Template Settings'" />
+        <v-card-text class="pt-4">
           <v-text-field
             v-model="templateSettings.name"
-            hide-details
             label="Template Name"
+            density="compact"
+            variant="outlined"
+            hide-details
             class="mb-4" />
-          <v-text-field
+          <v-textarea
             v-model="templateSettings.description"
             label="Description"
+            density="compact"
+            variant="outlined"
+            rows="2"
             hide-details
-            type="textarea"
-            rows="3"
             class="mb-4" />
           <v-text-field
             v-model="templateSettings.gameSystem"
             label="Game System"
             placeholder="e.g., D&D 5e"
+            density="compact"
+            variant="outlined"
             hide-details
             class="mb-4" />
-          <div class="mb-4">
-            <label class="text-subtitle2">Template Type Tags</label>
+          <v-select
+            v-model="templateSettings.size"
+            :items="dimensionPresets"
+            label="Paper Size"
+            density="compact"
+            variant="outlined"
+            hide-details
+            class="mb-4" />
+          <div
+            v-if="templateSettings.size === 'custom'"
+            class="d-flex gap-3 mb-4">
+            <v-text-field
+              v-model.number="templateSettings.customWidth"
+              label="Width (in)"
+              type="number"
+              density="compact"
+              variant="outlined"
+              step="0.1"
+              hide-details />
+            <v-text-field
+              v-model.number="templateSettings.customHeight"
+              label="Height (in)"
+              type="number"
+              density="compact"
+              variant="outlined"
+              step="0.1"
+              hide-details />
+          </div>
+          <div>
+            <div class="text-caption text-medium-emphasis mb-2">Tags</div>
             <v-chip-group
               v-model="templateSettings.tags"
+              multiple
               density="compact">
               <v-chip
                 v-for="tag in availableTags"
                 :key="tag"
                 :value="tag"
-                filter>
+                filter
+                size="small">
                 {{ tag }}
               </v-chip>
             </v-chip-group>
-          </div>
-
-          <div class="mb-4">
-            <label class="text-subtitle2 mb-2 d-block">Dimensions</label>
-            <v-select
-              v-model="templateSettings.size"
-              :items="dimensionPresets"
-              label="Paper Size"
-              density="compact"
-              class="mb-3" />
-            <div
-              v-if="templateSettings.size === 'custom'"
-              class="d-flex gap-3">
-              <v-text-field
-                v-model.number="templateSettings.customWidth"
-                label="Width (inches)"
-                type="number"
-                density="compact"
-                step="0.1" />
-              <v-text-field
-                v-model.number="templateSettings.customHeight"
-                label="Height (inches)"
-                type="number"
-                density="compact"
-                step="0.1" />
-            </div>
           </div>
         </v-card-text>
         <v-card-actions>
@@ -180,6 +126,36 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Share Dialog -->
+    <v-dialog
+      v-model="showShareDialog"
+      width="400">
+      <v-card>
+        <v-toolbar
+          density="compact"
+          title="Share Template" />
+        <v-card-text class="pt-4">
+          <p class="mb-4 text-body-2">Share this template with other users for collaboration.</p>
+          <v-text-field
+            label="User Email"
+            placeholder="user@example.com"
+            density="compact"
+            variant="outlined"
+            hide-details />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            text="Cancel"
+            @click="showShareDialog = false" />
+          <v-btn
+            text="Share"
+            color="primary"
+            @click="showShareDialog = false" />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-layout>
 </template>
 
@@ -187,20 +163,20 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useWorkshopStore } from '@/stores/workshopStore'
-import { WsSurface } from '@/components/workshop'
-import { GRID_COLS, PPI, dimensionPresets, dimensionMap, availableTags } from './constants'
+import { WsPalette, WsSurface } from '@/components/workshop'
+import { dimensionPresets, dimensionMap, availableTags } from './constants'
 
 const router = useRouter()
 const route = useRoute()
 const workshop = useWorkshopStore()
 
-// Editor state
-const previewMode = ref(false)
+// Dialog state
+const showShareDialog = ref(false)
+const showSettingsDialog = ref(false)
 
-// Template state (moved to store, but keep templateName for header binding)
-const templateName = ref('Untitled Template')
+// Local copy of template settings, synced on dialog open and saved on confirm
 const templateSettings = ref({
-  name: 'Untitled Template',
+  name: '',
   description: '',
   gameSystem: '',
   tags: [] as string[],
@@ -209,163 +185,127 @@ const templateSettings = ref({
   customHeight: 11,
 })
 
-// Grid calculation
-const gridDimensions = computed(() => {
-  const sizeKey = templateSettings.value.size
-  const dims =
-    sizeKey === 'custom'
-      ? { width: templateSettings.value.customWidth, height: templateSettings.value.customHeight }
-      : (dimensionMap[sizeKey as keyof typeof dimensionMap] ?? dimensionMap['letter'])
+const templateName = computed(() => workshop.currentTemplate?.name ?? 'Untitled Template')
 
-  // Calculate pixels at 300 PPI
-  const widthPx = Math.round(dims!.width * PPI)
-  const heightPx = Math.round(dims!.height * PPI)
-
-  // Calculate cell size and rows
-  const cellSize = Math.round(widthPx / GRID_COLS)
-  const rows = Math.round(heightPx / cellSize)
-  const actualHeightPx = cellSize * rows
-
+function createEmptyTemplate(id?: string): WorkshopTemplate {
   return {
-    widthPx,
-    heightPx: actualHeightPx,
-    cellSize,
-    rows,
+    id: id ?? `template-${Date.now()}`,
+    name: 'Untitled Template',
+    description: '',
+    gameSystem: '',
+    version: 1,
+    dimensions: 'letter',
+    variables: {},
+    expressions: {},
+    controls: {},
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   }
-})
+}
 
-// Dialog state
-const showShareDialog = ref(false)
-const showSettingsDialog = ref(false)
-
-// Initialize template on mount
-onMounted(() => {
-  const mode = route.query.mode as string
-  const templateId = route.query.templateId as string
-
-  console.log('Editor mounted with mode:', mode, 'templateId:', templateId)
-
-  if (mode === 'create' || !templateId) {
-    // Create a brand new template with sample controls
-    console.log('Creating new template...')
-    const newTemplate: WorkshopTemplate = {
-      id: `template-${Date.now()}`,
-      name: 'Untitled Template',
-      description: 'A new workshop template',
-      gameSystem: '',
-      version: 1,
-      dimensions: 'letter',
-      variables: {},
-      expressions: {},
-      controls: {},
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-
-    console.log('Setting template in store:', newTemplate)
-    workshop.setTemplate(newTemplate)
-    templateName.value = 'Untitled Template'
-    templateSettings.value.name = 'Untitled Template'
-
-    // Add test control to demonstrate property editor
-    const testControl: any = {
-      id: `ctrl-test-${Date.now()}`,
-      name: 'Test Control',
-      componentType: 'v-text-field',
-      x: 0,
-      y: 0,
-      w: 4,
-      h: 2,
-      // String properties
-      label: 'Example Label',
-      placeholder: 'Enter text here',
-      hint: 'This is a test control',
-      // Number properties
-      maxLength: 100,
-      minLength: 0,
-      // Boolean properties
-      readonly: false,
-      required: true,
-      disabled: false,
-      // Array property
-      rules: ['required', 'minLength:3'],
-      colors: ['red', 'blue', 'green'],
-      // Object property
-      metadata: { created: new Date().toISOString(), tags: ['demo', 'test'], version: 1 },
-    }
-    workshop.addControl(testControl)
-    workshop.selectControl(testControl.id)
-
-    console.log('Template set. Store template:', workshop.currentTemplate)
-    console.log('Grid layout items:', workshop.gridLayoutItems)
-  } else if (templateId) {
-    // Load existing template
-    // TODO: Fetch from API based on templateId
-    console.log('Loading template:', templateId)
-    // For now, create the same sample template to test
-    console.log('Creating sample template for testing since API not implemented...')
-    const sampleTemplate: WorkshopTemplate = {
-      id: templateId,
-      name: 'Sample Template',
-      description: 'A sample workshop template',
-      gameSystem: 'D&D 5e',
-      dimensions: 'letter',
-      version: 1,
-      variables: {},
-      expressions: {},
-      controls: {},
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-    workshop.setTemplate(sampleTemplate)
-    templateName.value = sampleTemplate.name
-    templateSettings.value.name = sampleTemplate.name
+function syncSettingsFromStore() {
+  const t = workshop.currentTemplate
+  if (!t) return
+  const isCustom = typeof t.dimensions === 'object'
+  const customDims = isCustom ? (t.dimensions as { width: number; height: number }) : null
+  const sizeKey = isCustom ? 'custom' : (t.dimensions as string)
+  templateSettings.value = {
+    name: t.name,
+    description: t.description ?? '',
+    gameSystem: t.gameSystem ?? '',
+    tags: [],
+    size: sizeKey,
+    customWidth: customDims?.width ?? 8.5,
+    customHeight: customDims?.height ?? 11,
   }
-})
-
-// Methods
-const goBack = () => {
-  router.push('/workshop')
 }
 
-const saveTemplate = () => {
-  // TODO: Implement save to store and MongoDB
-  console.log('Saving template:', templateName.value)
-}
-
-const shareTemplate = () => {
-  // TODO: Implement share functionality
-  console.log('Sharing template')
-  showShareDialog.value = false
-}
-
-const saveSettings = () => {
-  templateName.value = templateSettings.value.name
+function saveSettings() {
+  const t = workshop.currentTemplate
+  if (!t) return
+  t.name = templateSettings.value.name
+  t.description = templateSettings.value.description
+  t.gameSystem = templateSettings.value.gameSystem
+  t.dimensions =
+    templateSettings.value.size === 'custom'
+      ? { width: templateSettings.value.customWidth, height: templateSettings.value.customHeight }
+      : (templateSettings.value.size as WorkshopTemplate['dimensions'])
+  t.updatedAt = new Date().toISOString()
   showSettingsDialog.value = false
 }
+
+function openSettingsDialog() {
+  syncSettingsFromStore()
+  showSettingsDialog.value = true
+}
+
+onMounted(() => {
+  const templateId = route.query.templateId as string | undefined
+  const dims = templateId
+    ? (dimensionMap[templateSettings.value.size] ?? dimensionMap['letter'])
+    : dimensionMap['letter']
+  void dims
+  workshop.setTemplate(createEmptyTemplate(templateId))
+  syncSettingsFromStore()
+})
 </script>
 
 <style scoped lang="scss">
 .workshop-editor {
   height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.canvas-area {
+.ws-toolbar {
+  background: linear-gradient(135deg, #bd93f9 0%, #ff79c6 100%) !important;
+  flex-shrink: 0;
+
+  :deep(.v-toolbar-title),
+  :deep(.v-btn) {
+    text-shadow: 0 1px 3px rgb(0, 0, 0);
+  }
+}
+
+.ws-body {
+  flex: 1;
   display: flex;
-  gap: 0;
+  flex-direction: row;
+  overflow: hidden;
+  min-height: 0;
 }
 
-.property-drawer {
-  width: 320px;
-  border-left: 1px solid rgb(var(--v-theme-outline));
-  background-color: var(--v-surface-base);
+.ws-center {
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
+}
 
-  .drawer-header {
-    flex-shrink: 0;
-    border-bottom: 1px solid rgb(var(--v-theme-outline));
-  }
+.ws-canvas-bar {
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-bottom: 1px solid rgb(var(--v-theme-outline));
+}
+
+.ws-canvas-surface {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--v-theme-on-surface), 0.04);
+  padding: 32px;
+}
+
+.ws-properties {
+  width: 280px;
+  flex-shrink: 0;
+  border-left: 1px solid rgb(var(--v-theme-outline));
+  overflow-y: auto;
 }
 </style>

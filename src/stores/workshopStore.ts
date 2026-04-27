@@ -5,6 +5,8 @@ export const useWorkshopStore = defineStore('workshop', () => {
   // State
   const currentTemplate = ref<WorkshopTemplate | null>(null)
   const selectedControlId = ref<string | null>(null)
+  const previewMode = ref(false)
+  const gridVisible = ref(true)
 
   // Getters
   const selectedControl = computed(() => {
@@ -33,7 +35,10 @@ export const useWorkshopStore = defineStore('workshop', () => {
   const hasSelectedControl = computed(() => selectedControl.value !== null)
 
   // Helper to find control by ID in nested structure
-  function findControlById(controls: { [key: string]: WorkshopControl }, targetId: string): WorkshopControl | null {
+  function findControlById(
+    controls: { [key: string]: WorkshopControl },
+    targetId: string
+  ): WorkshopControl | null {
     for (const control of Object.values(controls)) {
       if (control.id === targetId) return control
       // Search in children recursively
@@ -42,22 +47,6 @@ export const useWorkshopStore = defineStore('workshop', () => {
     }
     return null
   }
-
-  // Convert WorkshopControl to vue-grid-layout item format
-  const gridLayoutItems = computed(() => {
-    if (!currentTemplate.value) return []
-    
-    return Object.values(currentTemplate.value.controls).map(control => ({
-      i: control.id,
-      x: control.x,
-      y: control.y,
-      w: control.w,
-      h: control.h,
-      static: false,
-      // Attach original control data
-      _control: control
-    }))
-  })
 
   // Actions
   function setTemplate(template: WorkshopTemplate) {
@@ -78,14 +67,11 @@ export const useWorkshopStore = defineStore('workshop', () => {
     currentTemplate.value.controls[control.id] = control
   }
 
-  function updateControlProperty(controlId: string, property: string, value: any) {
+  function updateControlProperty(controlId: string, property: string, value: unknown) {
     const control = findControlById(currentTemplate.value?.controls || {}, controlId)
     if (control) {
       ;(control as any)[property] = value
-      // Update template timestamp
-      if (currentTemplate.value) {
-        currentTemplate.value.updatedAt = new Date().toISOString()
-      }
+      _touchTimestamp()
     }
   }
 
@@ -96,10 +82,70 @@ export const useWorkshopStore = defineStore('workshop', () => {
       control.y = y
       control.w = w
       control.h = h
-      // Update template timestamp
-      if (currentTemplate.value) {
-        currentTemplate.value.updatedAt = new Date().toISOString()
-      }
+      _touchTimestamp()
+    }
+  }
+
+  function deleteControl(controlId: string) {
+    if (!currentTemplate.value) return
+    delete currentTemplate.value.controls[controlId]
+    if (selectedControlId.value === controlId) selectedControlId.value = null
+    _touchTimestamp()
+  }
+
+  function duplicateControl(controlId: string) {
+    const source = findControlById(currentTemplate.value?.controls ?? {}, controlId)
+    if (!source || !currentTemplate.value) return
+    const newId = `ctrl-${crypto.randomUUID()}`
+    const duplicate: WorkshopControl = {
+      ...(JSON.parse(JSON.stringify(source)) as WorkshopControl),
+      id: newId,
+      name: `${source.name} (copy)`,
+      x: source.x + 1,
+      y: source.y + 1,
+    }
+    currentTemplate.value.controls[newId] = duplicate
+    selectedControlId.value = newId
+    _touchTimestamp()
+  }
+
+  function updateControlStyle(controlId: string, key: string, value: unknown) {
+    const control = findControlById(currentTemplate.value?.controls ?? {}, controlId)
+    if (control) {
+      control.style[key] = value
+      _touchTimestamp()
+    }
+  }
+
+  function updateControlProps(controlId: string, key: string, value: unknown) {
+    const control = findControlById(currentTemplate.value?.controls ?? {}, controlId)
+    if (control) {
+      if (!control.props) control.props = {}
+      control.props[key] = value
+      _touchTimestamp()
+    }
+  }
+
+  function updateControlBinding(controlId: string, binding: WorkshopControl['binding']) {
+    const control = findControlById(currentTemplate.value?.controls ?? {}, controlId)
+    if (control) {
+      control.binding = binding
+      _touchTimestamp()
+    }
+  }
+
+  function togglePreview() {
+    previewMode.value = !previewMode.value
+    if (previewMode.value) selectedControlId.value = null
+  }
+
+  function toggleGrid() {
+    gridVisible.value = !gridVisible.value
+  }
+
+  function _touchTimestamp() {
+    if (currentTemplate.value) {
+      currentTemplate.value.updatedAt = new Date().toISOString()
     }
   }
 
@@ -107,19 +153,27 @@ export const useWorkshopStore = defineStore('workshop', () => {
     // State
     currentTemplate,
     selectedControlId,
+    previewMode,
+    gridVisible,
 
     // Getters
     selectedControl,
     selectedControlData,
     hasSelectedControl,
-    gridLayoutItems,
 
     // Actions
     setTemplate,
     selectControl,
     clearSelectedControl,
     addControl,
+    deleteControl,
+    duplicateControl,
     updateControlProperty,
     updateControlPosition,
+    updateControlStyle,
+    updateControlProps,
+    updateControlBinding,
+    togglePreview,
+    toggleGrid,
   }
 })

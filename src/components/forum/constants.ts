@@ -10,9 +10,48 @@ export const CATEGORIES = [
 ]
 
 // Keep plain array for v-for usage in FrNewPostDialog
-export const categories = CATEGORIES.map(c => c.value)
+export const categories = CATEGORIES.map((c) => c.value)
 
 export const SORT_OPTIONS = ['Latest', 'Top', 'Most Replies']
+
+export const TAGS = [
+  // Format
+  'Question',
+  'Discussion',
+  'Recap',
+  'Advice',
+  'Humor',
+  'Rant',
+  'Resource',
+  // Experience
+  'Beginner',
+  'Veteran',
+  'One-Shot',
+  'Long-Campaign',
+  'West Marches',
+  // Topics
+  'Worldbuilding',
+  'Homebrew',
+  'Rules',
+  'RAW',
+  'RAI',
+  'Balance',
+  'Character Creation',
+  'Combat',
+  'Roleplay',
+  'Exploration',
+  'Puzzles',
+  'NPCs',
+  'Villains',
+  'Magic Items',
+  'Encounters',
+  'Maps',
+  // Social
+  'LFG',
+  'LFP',
+  'Online',
+  'In-Person',
+]
 
 export function categoryColor(category: string): string {
   const map: Record<string, string> = {

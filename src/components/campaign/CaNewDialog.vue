@@ -22,13 +22,10 @@
             :rules="[v => !!v || 'Required']" />
         </v-col>
         <v-col cols="12">
-          <v-textarea
+          <PolyEditor
             v-model="form.description"
-            label="Description"
-            variant="outlined"
-            density="comfortable"
-            rows="3"
-            hide-details />
+            placeholder="Describe your campaign..."
+            min-height="120px" />
         </v-col>
         <v-col cols="12" sm="8">
           <v-text-field
@@ -75,7 +72,7 @@
 import { ref } from 'vue'
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { PolyDialog } from '@/components/ui'
+import { PolyDialog, PolyEditor } from '@/components/ui'
 
 defineProps<{ modelValue: boolean }>()
 

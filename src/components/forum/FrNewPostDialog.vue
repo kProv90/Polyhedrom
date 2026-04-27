@@ -2,14 +2,13 @@
   <PolyDialog
     :model-value="modelValue"
     title="New Post"
-    max-width="600"
+    max-width="650"
     persistent
     cancel-text="Cancel"
     submit-text="Post"
     @update:model-value="$emit('update:modelValue', $event)"
     @close="resetForm"
     @submit="handleCreate">
-
     <v-card-text class="pt-4">
       <v-row dense>
         <v-col cols="12">
@@ -19,9 +18,11 @@
             variant="outlined"
             density="comfortable"
             hide-details="auto"
-            :rules="[v => !!v || 'Required']" />
+            :rules="[(v) => !!v || 'Required']" />
         </v-col>
-        <v-col cols="12" sm="6">
+        <v-col
+          cols="12"
+          sm="5">
           <v-select
             v-model="form.category"
             :items="postCategories"
@@ -30,47 +31,46 @@
             density="comfortable"
             hide-details />
         </v-col>
-        <v-col cols="12" sm="6">
-          <v-combobox
+        <v-col
+          cols="12"
+          sm="7">
+          <PolyTagList
             v-model="form.tags"
+            :items="TAGS"
             label="Tags"
-            variant="outlined"
+            placeholder="Add tags..."
             density="comfortable"
-            multiple
-            chips
-            closable-chips
-            hide-details
-            placeholder="Add tags..." />
+            hide-details />
         </v-col>
         <v-col cols="12">
-          <v-textarea
+          <PolyEditor
             v-model="form.body"
-            label="Body"
-            variant="outlined"
-            density="comfortable"
-            rows="6"
-            hide-details="auto"
-            :rules="[v => !!v || 'Required']" />
+            placeholder="Write your post..."
+            min-height="220px" />
         </v-col>
       </v-row>
     </v-card-text>
-
   </PolyDialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { PolyDialog } from '@/components/ui'
-import { categories } from './constants'
+import { PolyDialog, PolyEditor, PolyTagList } from '@/components/ui'
+import { categories, TAGS } from './constants'
 
 defineProps<{ modelValue: boolean }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  create: [thread: Omit<ForumThread, 'id' | 'replies' | 'views' | 'upvotes' | 'createdAt' | 'lastActivity'>]
+  create: [
+    thread: Omit<
+      ForumThread,
+      'id' | 'replies' | 'views' | 'upvotes' | 'createdAt' | 'lastActivity'
+    >,
+  ]
 }>()
 
-const postCategories = categories.filter(c => c !== 'All')
+const postCategories = categories.filter((c) => c !== 'All')
 
 const emptyForm = () => ({
   title: '',
