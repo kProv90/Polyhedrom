@@ -26,15 +26,23 @@
       <!-- Area 4 + 5: Canvas sub-bar and surface -->
       <div class="ws-center">
         <div class="ws-canvas-bar">
-          <!-- Area 4 controls built later -->
+          <v-btn
+            :icon="workshop.previewMode ? 'mdi-eye' : 'mdi-eye-off'"
+            :color="workshop.previewMode ? 'primary' : undefined"
+            size="small"
+            variant="text"
+            density="compact"
+            @click="workshop.togglePreview" />
         </div>
         <div class="ws-canvas-surface">
-          <WsSurface />
+          <WsCanvas />
         </div>
       </div>
 
-      <!-- Area 6: Properties panel (built later) -->
-      <div class="ws-properties"></div>
+      <!-- Area 6: Properties panel -->
+      <div class="ws-properties">
+        <WsProperties />
+      </div>
     </div>
 
     <!-- Settings Dialog -->
@@ -163,8 +171,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useWorkshopStore } from '@/stores/workshopStore'
-import { WsPalette, WsSurface } from '@/components/workshop'
-import { dimensionPresets, dimensionMap, availableTags } from './constants'
+import { WsPalette, WsCanvas, WsProperties } from '@/components/workshop'
+import { dimensionPresets, availableTags } from './constants'
 
 const router = useRouter()
 const route = useRoute()
@@ -179,7 +187,6 @@ const templateSettings = ref({
   name: '',
   description: '',
   gameSystem: '',
-  tags: [] as string[],
   size: 'letter',
   customWidth: 8.5,
   customHeight: 11,
@@ -213,7 +220,6 @@ function syncSettingsFromStore() {
     name: t.name,
     description: t.description ?? '',
     gameSystem: t.gameSystem ?? '',
-    tags: [],
     size: sizeKey,
     customWidth: customDims?.width ?? 8.5,
     customHeight: customDims?.height ?? 11,
@@ -241,10 +247,6 @@ function openSettingsDialog() {
 
 onMounted(() => {
   const templateId = route.query.templateId as string | undefined
-  const dims = templateId
-    ? (dimensionMap[templateSettings.value.size] ?? dimensionMap['letter'])
-    : dimensionMap['letter']
-  void dims
   workshop.setTemplate(createEmptyTemplate(templateId))
   syncSettingsFromStore()
 })
@@ -294,18 +296,18 @@ onMounted(() => {
 
 .ws-canvas-surface {
   flex: 1;
-  overflow: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
   background-color: rgba(var(--v-theme-on-surface), 0.04);
-  padding: 32px;
 }
 
 .ws-properties {
   width: 280px;
   flex-shrink: 0;
   border-left: 1px solid rgb(var(--v-theme-outline));
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 </style>

@@ -301,3 +301,182 @@ export const availableTags = [
   'Map',
   'Custom',
 ]
+
+// ── Property panel schemas ────────────────────────────────────────────────────
+
+export interface PropSchema {
+  key: string
+  label: string
+  type: 'text' | 'number' | 'boolean' | 'select'
+  options?: string[]
+  description?: string
+}
+
+const VARIANT_OPTIONS = ['flat', 'tonal', 'outlined', 'text', 'plain', 'elevated']
+const DENSITY_OPTIONS = ['default', 'comfortable', 'compact']
+const SIZE_OPTIONS = ['x-small', 'small', 'default', 'large', 'x-large']
+const COLOR_OPTIONS = ['primary', 'secondary', 'success', 'warning', 'error', 'info']
+const ROUNDED_OPTIONS = ['0', 'sm', 'md', 'lg', 'xl', 'pill']
+
+export const componentPropSchemas: Record<string, PropSchema[]> = {
+  'v-text-field': [
+    { key: 'label', label: 'Label', type: 'text', description: 'Text label shown above the field' },
+    {
+      key: 'placeholder',
+      label: 'Placeholder',
+      type: 'text',
+      description: 'Hint text inside the field when empty',
+    },
+    { key: 'variant', label: 'Variant', type: 'select', options: VARIANT_OPTIONS },
+    { key: 'density', label: 'Density', type: 'select', options: DENSITY_OPTIONS },
+    {
+      key: 'clearable',
+      label: 'Clearable',
+      type: 'boolean',
+      description: 'Show a clear button when field has a value',
+    },
+    {
+      key: 'hint',
+      label: 'Hint',
+      type: 'text',
+      description: 'Help text displayed below the field',
+    },
+  ],
+  'v-textarea': [
+    { key: 'label', label: 'Label', type: 'text' },
+    { key: 'placeholder', label: 'Placeholder', type: 'text' },
+    { key: 'variant', label: 'Variant', type: 'select', options: VARIANT_OPTIONS },
+    { key: 'density', label: 'Density', type: 'select', options: DENSITY_OPTIONS },
+    { key: 'rows', label: 'Rows', type: 'number', description: 'Number of visible text rows' },
+    { key: 'clearable', label: 'Clearable', type: 'boolean' },
+  ],
+  'v-select': [
+    { key: 'label', label: 'Label', type: 'text' },
+    { key: 'variant', label: 'Variant', type: 'select', options: VARIANT_OPTIONS },
+    { key: 'density', label: 'Density', type: 'select', options: DENSITY_OPTIONS },
+    { key: 'clearable', label: 'Clearable', type: 'boolean' },
+  ],
+  'v-checkbox': [
+    { key: 'label', label: 'Label', type: 'text' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    {
+      key: 'indeterminate',
+      label: 'Indeterminate',
+      type: 'boolean',
+      description: 'Show a mixed/partial state',
+    },
+  ],
+  'v-switch': [
+    { key: 'label', label: 'Label', type: 'text' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+  ],
+  'v-slider': [
+    { key: 'min', label: 'Min', type: 'number' },
+    { key: 'max', label: 'Max', type: 'number' },
+    { key: 'step', label: 'Step', type: 'number' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+  ],
+  'v-btn': [
+    { key: 'text', label: 'Text', type: 'text', description: 'Button label' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    { key: 'variant', label: 'Variant', type: 'select', options: VARIANT_OPTIONS },
+    { key: 'size', label: 'Size', type: 'select', options: SIZE_OPTIONS },
+    { key: 'rounded', label: 'Rounded', type: 'select', options: ROUNDED_OPTIONS },
+    {
+      key: 'prepend-icon',
+      label: 'Prepend Icon',
+      type: 'text',
+      description: 'MDI icon before label, e.g. mdi-plus',
+    },
+    { key: 'append-icon', label: 'Append Icon', type: 'text', description: 'MDI icon after label' },
+  ],
+  'v-card': [
+    { key: 'title', label: 'Title', type: 'text' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    {
+      key: 'variant',
+      label: 'Variant',
+      type: 'select',
+      options: ['flat', 'tonal', 'outlined', 'elevated'],
+    },
+    { key: 'elevation', label: 'Elevation', type: 'number' },
+  ],
+  'v-sheet': [
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    { key: 'rounded', label: 'Rounded', type: 'select', options: ROUNDED_OPTIONS },
+    { key: 'border', label: 'Border', type: 'boolean' },
+    { key: 'elevation', label: 'Elevation', type: 'number' },
+  ],
+  'v-chip': [
+    { key: 'text', label: 'Text', type: 'text' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    { key: 'variant', label: 'Variant', type: 'select', options: VARIANT_OPTIONS },
+    { key: 'size', label: 'Size', type: 'select', options: SIZE_OPTIONS },
+    { key: 'closable', label: 'Closable', type: 'boolean' },
+  ],
+  'v-alert': [
+    { key: 'title', label: 'Title', type: 'text' },
+    { key: 'text', label: 'Text', type: 'text' },
+    {
+      key: 'type',
+      label: 'Type',
+      type: 'select',
+      options: ['success', 'info', 'warning', 'error'],
+    },
+    { key: 'variant', label: 'Variant', type: 'select', options: VARIANT_OPTIONS },
+    { key: 'closable', label: 'Closable', type: 'boolean' },
+  ],
+  'v-avatar': [
+    { key: 'size', label: 'Size', type: 'number' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    { key: 'image', label: 'Image URL', type: 'text' },
+    { key: 'icon', label: 'Icon', type: 'text', description: 'MDI icon name, e.g. mdi-account' },
+    { key: 'rounded', label: 'Rounded', type: 'select', options: ROUNDED_OPTIONS },
+  ],
+  'v-icon': [
+    { key: 'icon', label: 'Icon', type: 'text', description: 'MDI icon name, e.g. mdi-star' },
+    { key: 'size', label: 'Size', type: 'number' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+  ],
+  'v-img': [
+    { key: 'src', label: 'Source URL', type: 'text' },
+    {
+      key: 'cover',
+      label: 'Cover',
+      type: 'boolean',
+      description: 'Fill the container without stretching',
+    },
+    { key: 'aspect-ratio', label: 'Aspect Ratio', type: 'number' },
+    { key: 'alt', label: 'Alt Text', type: 'text' },
+  ],
+  'v-rating': [
+    { key: 'color', label: 'Color', type: 'select', options: ['amber', ...COLOR_OPTIONS] },
+    { key: 'size', label: 'Size', type: 'select', options: SIZE_OPTIONS },
+    { key: 'length', label: 'Length', type: 'number', description: 'Number of rating stars' },
+  ],
+  'v-badge': [
+    { key: 'content', label: 'Content', type: 'text', description: 'Text shown in the badge' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+  ],
+  'ws-progress': [
+    { key: 'variant', label: 'Variant', type: 'select', options: ['circular', 'linear'] },
+    { key: 'modelValue', label: 'Value', type: 'number', description: 'Progress value (0–100)' },
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+  ],
+  'v-tabs': [
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    { key: 'density', label: 'Density', type: 'select', options: DENSITY_OPTIONS },
+    { key: 'grow', label: 'Grow', type: 'boolean', description: 'Tabs fill the full width' },
+  ],
+  'v-btn-toggle': [
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    { key: 'variant', label: 'Variant', type: 'select', options: VARIANT_OPTIONS },
+    { key: 'density', label: 'Density', type: 'select', options: DENSITY_OPTIONS },
+    { key: 'divided', label: 'Divided', type: 'boolean' },
+  ],
+  'v-chip-group': [
+    { key: 'color', label: 'Color', type: 'select', options: COLOR_OPTIONS },
+    { key: 'variant', label: 'Variant', type: 'select', options: VARIANT_OPTIONS },
+  ],
+}

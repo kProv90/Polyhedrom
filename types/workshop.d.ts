@@ -38,13 +38,13 @@ interface WorkshopControl {
   /** Vue component identifier (e.g., 'v-text-field', 'v-sheet') */
   componentType: string
 
-  /** Grid column position (0-indexed) */
+  /** Left offset in pixels from canvas top-left */
   x: number
-  /** Grid row position (0-indexed) */
+  /** Top offset in pixels from canvas top-left */
   y: number
-  /** Width in grid cells */
+  /** Width in pixels */
   w: number
-  /** Height in grid cells */
+  /** Height in pixels */
   h: number
 
   /**
@@ -54,7 +54,7 @@ interface WorkshopControl {
   binding?:
     | { type: 'variable'; variableId: string }
     | { type: 'expression'; expressionId: string }
-    | { type: 'static'; value: any }
+    | { type: 'static'; value: string | number | boolean | null }
 
   /** CSS styles objects */
   style: { [key: string]: any }

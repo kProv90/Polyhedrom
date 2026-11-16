@@ -6,7 +6,7 @@ export const useWorkshopStore = defineStore('workshop', () => {
   const currentTemplate = ref<WorkshopTemplate | null>(null)
   const selectedControlId = ref<string | null>(null)
   const previewMode = ref(false)
-  const gridVisible = ref(true)
+  const canvasScale = ref(1)
 
   // Getters
   const selectedControl = computed(() => {
@@ -33,6 +33,8 @@ export const useWorkshopStore = defineStore('workshop', () => {
   })
 
   const hasSelectedControl = computed(() => selectedControl.value !== null)
+
+  const controlsList = computed(() => Object.values(currentTemplate.value?.controls ?? {}))
 
   // Helper to find control by ID in nested structure
   function findControlById(
@@ -117,6 +119,16 @@ export const useWorkshopStore = defineStore('workshop', () => {
     }
   }
 
+  function removeControlStyle(controlId: string, key: string) {
+    const control = findControlById(currentTemplate.value?.controls ?? {}, controlId)
+    if (control) {
+      const updated = { ...control.style }
+      delete updated[key]
+      control.style = updated
+      _touchTimestamp()
+    }
+  }
+
   function updateControlProps(controlId: string, key: string, value: unknown) {
     const control = findControlById(currentTemplate.value?.controls ?? {}, controlId)
     if (control) {
@@ -139,8 +151,8 @@ export const useWorkshopStore = defineStore('workshop', () => {
     if (previewMode.value) selectedControlId.value = null
   }
 
-  function toggleGrid() {
-    gridVisible.value = !gridVisible.value
+  function setCanvasScale(scale: number) {
+    canvasScale.value = scale
   }
 
   function _touchTimestamp() {
@@ -154,12 +166,13 @@ export const useWorkshopStore = defineStore('workshop', () => {
     currentTemplate,
     selectedControlId,
     previewMode,
-    gridVisible,
+    canvasScale,
 
     // Getters
     selectedControl,
     selectedControlData,
     hasSelectedControl,
+    controlsList,
 
     // Actions
     setTemplate,
@@ -171,9 +184,10 @@ export const useWorkshopStore = defineStore('workshop', () => {
     updateControlProperty,
     updateControlPosition,
     updateControlStyle,
+    removeControlStyle,
     updateControlProps,
     updateControlBinding,
     togglePreview,
-    toggleGrid,
+    setCanvasScale,
   }
 })
