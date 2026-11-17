@@ -1,334 +1,410 @@
 <template>
-  <q-page class="poly-page">
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="container">
-        <div class="text-center">
-          <h1 class="hero-title">
-            Welcome to <span class="animated-text">Polyhedrom</span>
-          </h1>
-          <p class="hero-subtitle">
-            Your digital toolkit for tabletop RPG campaigns
+  <div class="d-flex flex-column align-center justify-center">
+    <div class="w-75">
+      <!-- Hero Section -->
+      <v-container
+        class="hero-section"
+        fluid>
+        <template v-if="!firebaseUser">
+          <v-btn
+            color="primary"
+            class="floating-login-btn bg-surface"
+            prepend-icon="mdi-account"
+            variant="outlined"
+            @click="session.setAuthState(AuthState.Login)">
+            Login
+          </v-btn>
+        </template>
+        <v-container>
+          <v-row justify="center">
+            <v-col
+              cols="12"
+              class="text-center">
+              <h1 class="hero-title">
+                Welcome to
+                <span class="animated-text">Polyhedrom</span>
+              </h1>
+              <p class="hero-subtitle pb-8">
+                Your digital toolkit and companion for tabletop RPG campaigns
+              </p>
+              <div class="hero-actions">
+                <v-btn
+                  size="large"
+                  color="primary"
+                  rounded
+                  class="mr-4 mb-2"
+                  @click="handleSignUp">
+                  Get Started
+                </v-btn>
+                <v-btn
+                  size="large"
+                  variant="outlined"
+                  color="primary"
+                  rounded
+                  class="mb-2"
+                  @click="scrollToFeatures">
+                  Learn More
+                </v-btn>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-container>
+
+      <!-- Features Section -->
+      <v-container
+        class="features-section"
+        fluid
+        id="features">
+        <v-container>
+          <v-row justify="center">
+            <v-col
+              cols="12"
+              class="text-center mb-12">
+              <h2 class="section-title">Everything You Need</h2>
+              <p class="section-subtitle">Tools to enhance your D&D experience</p>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              v-for="feature in features"
+              :key="feature.id"
+              cols="12"
+              md="6"
+              lg="3"
+              class="d-flex">
+              <v-card
+                class="feature-card flex-grow-1"
+                elevation="2">
+                <v-card-text class="text-center pa-6">
+                  <v-icon
+                    :icon="feature.icon"
+                    size="48"
+                    :color="feature.color"
+                    class="mb-4" />
+                  <h3 class="feature-title">{{ feature.title }}</h3>
+                  <p class="feature-description">{{ feature.description }}</p>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-container>
+      <v-container class="d-flex justify-center align-center text-center">
+        <p class="section-subtitle text-center w-75">
+          All of these features work hand-in-hand to enhance your D&D experience. Whether you're a
+          DM or a player, Polyhedrom has everything you need to make your game more immersive and
+          engaging. Our goal is to provide a seamless and enjoyable experience for all users.
+        </p>
+      </v-container>
+      <!-- CTA Section -->
+      <v-container
+        class="cta-section"
+        fluid>
+        <v-container>
+          <v-row justify="center">
+            <v-col cols="12">
+              <v-card
+                class="cta-card"
+                elevation="4">
+                <v-card-text class="text-center pa-8">
+                  <h2 class="cta-title">Ready to Start Your Adventure?</h2>
+                  <p class="cta-subtitle">Join other DMs and players using Polyhedrom</p>
+                  <v-btn
+                    size="large"
+                    color="primary"
+                    rounded
+                    class="mt-4"
+                    @click="session.setAuthState(AuthState.Register)">
+                    Create Account
+                  </v-btn>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-container>
+    </div>
+  </div>
+  <!-- Footer -->
+  <v-footer class="bg-grey-darken-4 text-white pa-8">
+    <v-container>
+      <v-row>
+        <!-- Company Info -->
+        <v-col
+          cols="12"
+          md="4">
+          <div class="text-h6 mb-4">
+            <v-icon
+              icon="mdi-dice-6"
+              size="24"
+              class="mr-2" />
+            Polyhedrom
+          </div>
+          <p class="text-body-2 mb-4">
+            Your digital toolkit for tabletop RPG campaigns. Built by gamers, for gamers.
           </p>
-          <div class="hero-actions q-mt-lg">
-            <q-btn
-              size="lg"
-              color="primary"
-              rounded
-              label="Get Started"
-              class="q-mr-md"
-              @click="handleSignUp"
-            />
-            <q-btn
-              size="lg"
-              outline
-              color="primary"
-              rounded
-              label="Learn More"
-              @click="scrollToFeatures"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
+          <p class="text-caption">© 2024 Tableside LLC. All rights reserved.</p>
+        </v-col>
 
-    <!-- Features Section -->
-    <section class="features-section" id="features">
-      <div class="container">
-        <div class="text-center q-mb-xl">
-          <h2 class="section-title">Everything You Need</h2>
-          <p class="section-subtitle">Tools to enhance your D&D experience</p>
-        </div>
-
-        <div class="row q-col-gutter-lg">
-          <div
-            v-for="feature in features"
-            :key="feature.id"
-            class="col-12 col-md-6 col-lg-4"
-          >
-            <q-card class="feature-card">
-              <q-card-section class="text-center">
-                <q-icon
-                  :name="feature.icon"
-                  size="48px"
-                  :color="feature.color"
-                  class="q-mb-md"
-                />
-                <h3 class="feature-title">{{ feature.title }}</h3>
-                <p class="feature-description">{{ feature.description }}</p>
-              </q-card-section>
-            </q-card>
+        <!-- Quick Links -->
+        <v-col
+          cols="12"
+          sm="6"
+          md="2">
+          <div class="text-h6 mb-4">Product</div>
+          <div class="d-flex flex-column">
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="scrollToFeatures">
+              Features
+            </v-btn>
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="router.push('/pricing')">
+              Pricing
+            </v-btn>
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="router.push('/changelog')">
+              Changelog
+            </v-btn>
           </div>
-        </div>
-      </div>
-    </section>
+        </v-col>
 
-    <!-- CTA Section -->
-    <section class="cta-section">
-      <div class="container">
-        <q-card class="cta-card">
-          <q-card-section class="text-center">
-            <h2 class="cta-title">Ready to Start Your Adventure?</h2>
-            <p class="cta-subtitle">
-              Join other DMs and players using Polyhedrom
-            </p>
-            <q-btn
-              size="lg"
-              color="primary"
-              rounded
-              label="Create Account"
-              class="q-mt-md"
-              @click="handleSignUp"
-            />
-          </q-card-section>
-        </q-card>
-      </div>
-    </section>
+        <!-- Support Links -->
+        <v-col
+          cols="12"
+          sm="6"
+          md="2">
+          <div class="text-h6 mb-4">Support</div>
+          <div class="d-flex flex-column">
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="router.push('/help')">
+              Help Center
+            </v-btn>
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="router.push('/contact')">
+              Contact Us
+            </v-btn>
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="router.push('/bug-report')">
+              Bug Report
+            </v-btn>
+          </div>
+        </v-col>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white">
-      <div class="container q-pa-lg">
-        <div class="row q-col-gutter-lg">
-          <!-- Company Info -->
-          <div class="col-12 col-md-4">
-            <div class="text-h6 q-mb-md">
-              <q-icon name="mdi-dice-6" size="24px" class="q-mr-sm" />
-              Polyhedrom
-            </div>
-            <p class="text-body2">
-              Your digital toolkit for tabletop RPG campaigns. Built by gamers,
-              for gamers.
-            </p>
-            <p class="text-caption">
-              © 2024 Tableside LLC. All rights reserved.
-            </p>
+        <!-- Legal Links -->
+        <v-col
+          cols="12"
+          sm="6"
+          md="2">
+          <div class="text-h6 mb-4">Legal</div>
+          <div class="d-flex flex-column">
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="router.push('/privacy')">
+              Privacy Policy
+            </v-btn>
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="router.push('/terms')">
+              Terms of Service
+            </v-btn>
+            <v-btn
+              variant="text"
+              size="small"
+              class="justify-start pa-0 mb-1 text-body-2"
+              @click="router.push('/cookies')">
+              Cookie Policy
+            </v-btn>
           </div>
+        </v-col>
 
-          <!-- Quick Links -->
-          <div class="col-12 col-sm-6 col-md-2">
-            <div class="text-h6 q-mb-md">Product</div>
-            <div class="column">
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Features"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="scrollToFeatures"
-              />
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Pricing"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="router.push('/pricing')"
-              />
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Changelog"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="router.push('/changelog')"
-              />
-            </div>
+        <!-- Social & Connect -->
+        <v-col
+          cols="12"
+          sm="6"
+          md="2">
+          <div class="text-h6 mb-4">Connect</div>
+          <div class="d-flex mb-4">
+            <v-btn
+              variant="text"
+              icon="mdi-twitter"
+              size="small"
+              class="mr-2"
+              @click="openLink('https://twitter.com/tableside')" />
+            <v-btn
+              variant="text"
+              icon="mdi-discord"
+              size="small"
+              class="mr-2"
+              @click="openLink('https://discord.gg/tableside')" />
+            <v-btn
+              variant="text"
+              icon="mdi-reddit"
+              size="small"
+              @click="openLink('https://reddit.com/r/tableside')" />
           </div>
+          <p class="text-caption">Join our community of tabletop enthusiasts!</p>
+        </v-col>
+      </v-row>
 
-          <!-- Support Links -->
-          <div class="col-12 col-sm-6 col-md-2">
-            <div class="text-h6 q-mb-md">Support</div>
-            <div class="column">
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Help Center"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="router.push('/help')"
-              />
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Contact Us"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="router.push('/contact')"
-              />
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Bug Report"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="router.push('/bug-report')"
-              />
-            </div>
-          </div>
+      <!-- Bottom Bar -->
+      <v-divider class="my-6" />
+      <v-row align="center">
+        <v-col
+          cols="12"
+          updateAuthState
+          md="6">
+          <p class="text-caption ma-0">Made with ❤️ for the tabletop gaming community</p>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+          class="text-md-right">
+          <p class="text-caption ma-0">Version 1.0.0 | Built with Vuetify & Vue</p>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-footer>
 
-          <!-- Legal Links -->
-          <div class="col-12 col-sm-6 col-md-2">
-            <div class="text-h6 q-mb-md">Legal</div>
-            <div class="column">
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Privacy Policy"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="router.push('/privacy')"
-              />
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Terms of Service"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="router.push('/terms')"
-              />
-              <q-btn
-                flat
-                align="left"
-                no-caps
-                label="Cookie Policy"
-                class="text-body2 q-pa-none q-mb-xs"
-                @click="router.push('/cookies')"
-              />
-            </div>
-          </div>
-
-          <!-- Social & Connect -->
-          <div class="col-12 col-sm-6 col-md-2">
-            <div class="text-h6 q-mb-md">Connect</div>
-            <div class="row q-gutter-sm q-mb-md">
-              <q-btn
-                flat
-                round
-                icon="mdi-twitter"
-                size="sm"
-                @click="openLink('https://twitter.com/tableside')"
-              />
-              <q-btn
-                flat
-                round
-                icon="mdi-discord"
-                size="sm"
-                @click="openLink('https://discord.gg/tableside')"
-              />
-              <q-btn
-                flat
-                round
-                icon="mdi-reddit"
-                size="sm"
-                @click="openLink('https://reddit.com/r/tableside')"
-              />
-            </div>
-            <p class="text-caption">
-              Join our community of tabletop enthusiasts!
-            </p>
-          </div>
-        </div>
-
-        <!-- Bottom Bar -->
-        <q-separator class="q-my-md" />
-        <div class="row items-center">
-          <div class="col-12 col-md-6">
-            <p class="text-caption q-ma-none">
-              Made with ❤️ for the tabletop gaming community
-            </p>
-          </div>
-          <div class="col-12 col-md-6 text-right">
-            <p class="text-caption q-ma-none">
-              Version 1.0.0 | Built with Quasar & Vue
-            </p>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </q-page>
+  <PolyDialog
+    v-model="authDlg"
+    @close="session.setAuthState(AuthState.None)"
+    max-width="400"
+    card-style="min-height: 600px">
+    <PolyLogo />
+    <LoginForm v-if="session.getAuthState() == AuthState.Login" />
+    <RegisterForm v-if="session.getAuthState() == AuthState.Register" />
+    <ResetForm v-if="session.getAuthState() == AuthState.Reset" />
+    <VerifyForm v-if="session.getAuthState() == AuthState.Verify" />
+  </PolyDialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useSessionStore, AuthState } from "src/stores/sessionStore";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { onAuthStateChanged } from 'firebase/auth'
+import type { User } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
+import { useSessionStore, AuthState } from '@/stores/sessionStore'
+import { PolyDialog, PolyLogo } from '@/components/ui'
+import { LoginForm, RegisterForm, ResetForm, VerifyForm } from '@/components/auth'
 
-const router = useRouter();
-const session = useSessionStore();
+const firebaseUser = ref<User | null>(null)
+onAuthStateChanged(auth, (u) => {
+  firebaseUser.value = u
+})
+
+const router = useRouter()
+const session = useSessionStore()
+const authDlg = computed(() => session.getAuthState() != AuthState.None)
 
 interface Feature {
-  id: number;
-  title: string;
-  description: string;
-  icon: string;
-  color: string;
+  id: number
+  title: string
+  description: string
+  icon: string
+  color: string
 }
 
 const features = ref<Feature[]>([
   {
     id: 1,
-    title: "Campaign Management",
-    description: "Organize your campaigns with notes, NPCs, and locations.",
-    icon: "mdi-book-open-variant",
-    color: "primary",
+    title: 'Campaign Management',
+    description: 'Organize your campaigns with notes, NPCs, and locations.',
+    icon: 'mdi-book-open-variant',
+    color: 'primary',
   },
   {
     id: 2,
-    title: "Character Sheets",
-    description: "Digital character sheets that sync across devices.",
-    icon: "mdi-account-group",
-    color: "secondary",
+    title: 'Sheet Designer',
+    description: 'Create custom data sheets for any occasion.',
+    icon: 'mdi-view-dashboard-variant',
+    color: 'secondary',
   },
   {
     id: 3,
-    title: "Dice Rolling",
-    description: "Virtual dice with custom sets and roll history.",
-    icon: "mdi-dice-6",
-    color: "accent",
+    title: 'Dice Rolling',
+    description: 'Virtual dice with custom sets and roll history.',
+    icon: 'mdi-dice-6',
+    color: 'accent',
   },
   {
     id: 4,
-    title: "Inventory Management",
-    description: "Track equipment, loot, and magic items easily.",
-    icon: "mdi-treasure-chest",
-    color: "primary",
+    title: 'Inventory Management',
+    description: 'Track equipment, loot, and magic items easily.',
+    icon: 'mdi-treasure-chest',
+    color: 'primary',
   },
   {
     id: 5,
-    title: "Session Planning",
-    description: "Plan encounters and track initiative order.",
-    icon: "mdi-calendar-check",
-    color: "secondary",
+    title: 'World Planning',
+    description: 'Design and manage a living breathing world.',
+    icon: 'mdi-earth',
+    color: 'secondary',
   },
   {
     id: 6,
-    title: "Party Collaboration",
-    description: "Share notes and handouts with your party.",
-    icon: "mdi-account-multiple",
-    color: "accent",
+    title: 'Party Collaboration',
+    description: 'Share notes and handouts with your party.',
+    icon: 'mdi-account-multiple',
+    color: 'accent',
   },
-]);
+  {
+    id: 7,
+    title: 'Initiative Tracker',
+    description: 'Track initiative order, manage conditions, monitor statistics.',
+    icon: 'mdi-sword-cross',
+    color: 'primary',
+  },
+  {
+    id: 8,
+    title: 'Artificial Intelligence',
+    description: 'Enhance your gaming experience with AI-powered features.',
+    icon: 'mdi-memory',
+    color: 'secondary',
+  },
+])
 
 const handleSignUp = () => {
-  session.auth = AuthState.Register;
-};
-
+  session.setAuthState(AuthState.Register)
+}
 const scrollToFeatures = () => {
-  document.getElementById("features")?.scrollIntoView({
-    behavior: "smooth",
-  });
-};
+  document.getElementById('features')?.scrollIntoView({
+    behavior: 'smooth',
+  })
+}
 
 const openLink = (url: string) => {
-  window.open(url, "_blank");
-};
+  window.open(url, '_blank')
+}
 </script>
 
 <style lang="scss" scoped>
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+.poly-page {
+  min-height: 100vh;
 }
 
 // Hero Section
@@ -353,19 +429,18 @@ const openLink = (url: string) => {
 @keyframes colorShift {
   0%,
   100% {
-    color: $primary;
-  }
-  66% {
-    color: $secondary;
+    color: rgb(var(--v-theme-primary));
   }
   33% {
-    color: $accent;
+    color: rgb(var(--v-theme-secondary));
+  }
+  66% {
+    color: rgb(var(--v-theme-accent));
   }
 }
 
 .hero-subtitle {
   font-size: 1.5rem;
-  color: $grey-7;
   margin-bottom: 2rem;
 
   @media (max-width: 768px) {
@@ -375,7 +450,7 @@ const openLink = (url: string) => {
 
 .hero-actions {
   @media (max-width: 600px) {
-    .q-btn {
+    .v-btn {
       display: block;
       width: 100%;
       margin: 0.5rem 0;
@@ -385,7 +460,7 @@ const openLink = (url: string) => {
 
 // Features Section
 .features-section {
-  padding: 80px 0;
+  padding: 40px 0;
 }
 
 .section-title {
@@ -396,15 +471,17 @@ const openLink = (url: string) => {
 
 .section-subtitle {
   font-size: 1.2rem;
-  color: $grey-7;
 }
 
 .feature-card {
   height: 100%;
-  transition: transform 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
   }
 }
 
@@ -415,19 +492,12 @@ const openLink = (url: string) => {
 }
 
 .feature-description {
-  color: $grey-7;
   line-height: 1.5;
 }
 
 // CTA Section
 .cta-section {
   padding: 80px 0;
-  background: $grey-1;
-}
-
-.cta-card {
-  padding: 40px 20px;
-  border-radius: 12px;
 }
 
 .cta-title {
@@ -438,7 +508,6 @@ const openLink = (url: string) => {
 
 .cta-subtitle {
   font-size: 1.1rem;
-  color: $grey-7;
   margin-bottom: 2rem;
 }
 
@@ -455,6 +524,19 @@ const openLink = (url: string) => {
 
   .cta-title {
     font-size: 1.8rem;
+  }
+}
+
+.floating-login-btn {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  @media (max-width: 600px) {
+    top: 16px;
+    right: 16px;
   }
 }
 </style>
