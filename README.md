@@ -77,26 +77,33 @@ polyhedrom/
 ### Prerequisites
 
 - Node.js 22+
-- Yarn
+- npm
 - Firebase CLI (`npm install -g firebase-tools`)
 
 ### Frontend (Dev Server)
 
 ```bash
-yarn install
-yarn vite --host
+npm install
+npm run dev -- --host
 ```
 
-Runs at `http://localhost:3000`
+Vite runs the app on the default local port `http://localhost:5173` (or the next available port if 5173 is already in use).
+
+If you want to expose the dev server on a LAN or VM host, use:
+
+```bash
+npm run public
+```
 
 ### Backend (Cloud Functions)
 
 ```bash
 cd functions
 npm install
-npm run build
-firebase emulators:start --only functions
+npm run dev
 ```
+
+This builds the TypeScript functions and starts the Firebase emulator for the backend.
 
 ---
 
